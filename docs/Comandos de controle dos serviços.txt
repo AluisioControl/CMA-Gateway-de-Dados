@@ -1,0 +1,43 @@
+CONTROLE DE SERVIÇO SIMULADOR CMA WEB
+cma_server_fake.py
+
+CONTROLE DE SERVIÇO SCADA-LTS
+MYSQL
+sudo systemctl status mysqlscada.service
+sudo systemctl stop mysqlscada.service
+sudo systemctl start mysqlscada.service
+
+TOMCAT
+sudo systemctl status tomcatscada.service
+sudo systemctl stop tomcatscada.service
+sudo systemctl start tomcatscada.service
+
+CONTROLE DE SERVIÇO BROKER MQTT
+RABBITMQ
+sudo systemctl status rabbitmq-server
+sudo systemctl stop rabbitmq-server
+sudo systemctl start rabbitmq-server
+
+GATEWAY DE DADOS
+START API
+uvicorn main:app --host 0.0.0.0 --port 5048  --reload
+
+Gateway de dados
+GTW_01
+
+Datasource
+Brax_Eqp_01
+
+Datapoints
+brax_umi_01	| 0		sensor
+brax_temp_01	| 1		sensor
+brax_dds_01	| 2	bool	alarme
+brax_nivel_01	| 3	bool	alarme
+brax_orva_01	| 4		sensor
+brax_umi_02	| 5		sensor
+brax_temp_02	| 6		sensor
+brax_temp_03	| 7		sensor
+brax_rain_01	| 8	bool	alarme
+
+
+

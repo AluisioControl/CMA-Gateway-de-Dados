@@ -1,0 +1,27 @@
+
+
+
+- [EM ANDAMENTO - ALUISIO] Homologação da ISO contendo o Gateway de Dados no hardware da SEL
+- [CONCLUÍDO - MARCELO] Organização do código em domínios
+- [EM DESENVOLVIMENTO - MARCELO] Integração do reconscile com a API do CMA WEB (Aqui só janeiro mesmo junto ao Anderson conforme havíamos conversado)
+- [CONCLUÍDO - MARCELO] Testes unitários
+- shellscript de instalacao inicial (colocar as enviroment variables do SO no projeto)
+- shellscript de atualizacao de parametros (talvez o de instalacao já sirva pra aqui também)
+- [CONCLUÍDO - MARCELO] shellscript de ver logs (um tail -f mesmo por baixo dos panos)
+- [EM ANDAMENTO - ALUISIO] fluentbit enviando pro Grafana Loki
+- [CONCLUÍDO - MARCELO OBS: Mudar caminho no Gateway '/var/log/syslog'] Rotacao de arquivo de logs (retencao de 1gb ou 14 dias, algo assim)
+- [A INICIAR] Healthcheck para o rabbitmq (Esse vai ser importante a gente conversar)
+- [A INICIAR] Healthcheck local (alguma rota para checar as configs)
+
+[VER EM REUNIÃO] ALTERAR A PERIODICIDADE DE LEITURA DO SENSOR (HOJE EH A CADA 5MIN)
+
+
+Primeira rota HTTP:
+- Puxar todos os equipamentos do Gateway de Dados
+	- Filtro: o nome do gateway
+	observação: preservar os ID`s de origem 
+
+
+Segunda rota HTTP:
+- Registradores por cada sensor de um gateway de dados
+	- Filtro: ID do sensor

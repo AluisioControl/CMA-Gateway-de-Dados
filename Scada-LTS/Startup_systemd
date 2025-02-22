@@ -1,0 +1,74 @@
+Passo a Passo Usando Systemd
+
+1. Tornar os Scripts Executáveis
+
+Primeiro, certifique-se de que seus scripts são executáveis. Abra um terminal e execute os seguintes comandos, substituindo os caminhos pelos locais reais dos seus scripts:
+
+sudo chmod +x /caminho/para/mysql_start.sh
+sudo chmod +x /caminho/para/tomcat_start.sh
+
+2. Criar Arquivos de Unidade do Systemd
+Crie um arquivo de unidade do systemd para cada serviço.
+
+MySQL
+Crie um arquivo chamado mysql_start.service em /etc/systemd/system/.
+
+[Unit]
+Description=MySQL Start Script
+After=network.target 
+[Service]
+ExecStart=/meu/diretório/mysql_start.sh 
+[Install]
+WantedBy=multi-user.target
+
+
+
+Tomcat
+Crie um arquivo chamado tomcat_start.service em /etc/systemd/system/.
+
+[Unit]
+Description=TomCat Start Script
+After= mysql_start.service 
+[Service]
+ExecStart=/meu/diretório/tomcat_start.sh 
+[Install]
+WantedBy=multi-user.target
+
+
+
+Note que After=mysql_start.service garante que o Tomcat será iniciado após o MySQL.
+
+3. Reinicie o systemd daemon para carregar os novos serviços criados:
+
+sudo systemctl daemon-reload
+
+
+4. Habilitar e Iniciar os Serviços
+Habilite os serviços para iniciar na inicialização e inicie-os manualmente para testar.
+
+
+sudo systemctl enable mysql_start.service
+sudo systemctl start mysql_start.service
+
+sudo systemctl enable tomcat_start.service
+sudo systemctl start tomcat_start.service
+
+5. Verificar Status dos Serviços
+Verifique se os serviços estão ativos e funcionando corretamente.
+
+sudo systemctl status mysql_start.service
+sudo systemctl status tomcat_start.service
+
+
+6. Reiniciar e Testar
+Reinicie o sistema para confirmar se os scripts estão sendo executados corretamente na inicialização.
+
+
+Observações Importantes
+Assegure-se de que os scripts mysql_start.sh e tomcat_start.sh estejam corretamente configurados e testados para executar as operações necessárias.
+Se os scripts necessitarem de permissões de root, não é necessário fazer alterações, pois os serviços do systemd são executados com permissões de root por padrão.
+Se os scripts precisarem ser executados como um usuário específico, adicione User=nome_do_usuario e Group=nome_do_grupo na seção [Service] do arquivo de serviço.
+Ajuste os caminhos e as dependências conforme necessário para o seu ambiente específico.
+
+Essas instruções devem ajudar a configurar os serviços systemd para iniciar o MySQL e o Tomcat na inicialização do sistema.
+

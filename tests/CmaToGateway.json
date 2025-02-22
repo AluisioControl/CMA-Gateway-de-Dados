@@ -1,0 +1,48 @@
+{
+    "Equipamentos": [
+        {
+            "MODBUS_IP": [
+                {
+                    "xid_equip": "",
+                    "fabricante": "",
+                    "marca": "",
+                    "modelo": "",
+                    "sap_id": "",
+                    "enabled": "",
+                    "type": "",
+                    "host": "",
+                    "port": "",
+                    "retries": "",
+                    "timeout": "",
+                    "updatePeriods": "",
+                    "updatePeriodType": "",
+                    "maxReadRegisterCount": "",
+                    "maxWriteRegisterCount": "",
+                    "maxReadBitCount": "",
+                    "eqp_tags": []
+                }
+            ],
+            "DNP3": [
+                {
+                    "xid_equip": "",
+                    "fabricante": "",
+                    "marca": "",
+                    "modelo": "",
+                    "sap_id": "",
+                    "enabled": "",
+                    "type": "",
+                    "host": "",
+                    "port": "",
+                    "slaveAddress": "",
+                    "sourceAddress": "",
+                    "retries": "",
+                    "timeout": "",
+                    "rbePollPeriods": "",
+                    "eventsPeriodType": "",
+                    "staticPollPeriods": "",
+                    "dp_tags": []
+                }
+            ]
+        }
+    ]
+}
