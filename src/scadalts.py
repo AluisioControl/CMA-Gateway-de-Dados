@@ -69,7 +69,6 @@ def get_cookie_from_url(url):
     finally:
         curl.close()
 
-
 def get_with_cookie(url, cookie, xid_sensor):
     """Realiza uma requisição GET usando o cookie de autenticação."""
     buffer = BytesIO()
@@ -100,7 +99,6 @@ def get_with_cookie(url, cookie, xid_sensor):
     finally:
         curl.close()
 
-
 def get_valid_cookie():
     """Verifica se o cookie armazenado ainda é válido, senão obtém um novo."""
     current_time = time.time()
@@ -113,7 +111,6 @@ def get_valid_cookie():
     
     print("Cookie expirado ou inexistente. Renovando...")
     return get_cookie_from_url(AUTH_URL)
-
 
 def get_json_data(xid_sensor):
     """Obtém os dados JSON apenas se o cookie for válido."""
@@ -129,7 +126,6 @@ def get_json_data(xid_sensor):
         logger.error(f"Falha ao buscar os dados do xid_sensor: {xid_sensor}")
         return None
 
-
 # TESTE: 
 '''
 get_json_data("XIDSENS")
@@ -141,7 +137,6 @@ print("-------------------------------------------------------------------------
 get_json_data("XIDSENS")  # Deve renovar o cookie
 
 '''
-
 # -------------------------------------------------------------
 # Rotina de autenticação no SCADA-LTS
 # -------------------------------------------------------------
@@ -168,11 +163,11 @@ def auth_ScadaLTS():
     except ConnectionError as e:
         logger.error(f"Erro ao tentar autenticar no SCADA-LTS: {e}")
 
-
 # -------------------------------------------------------------
 # Função para envio de dados para o SCADA-LTS
 # -------------------------------------------------------------
 def send_data_to_scada(raw_data):
+
     try:
         buffer = BytesIO()
         c = pycurl.Curl()
@@ -189,3 +184,47 @@ def send_data_to_scada(raw_data):
         print("send_data_to_scada", raw_data)
     except ConnectionError as e:
         logger.error(f"Erro ao enviar dados ao SCADA-LTS: {e}")
+
+# -------------------------------------------------------------
+# Função para importação de Datasources Modbus no SCADA-LTS
+# -------------------------------------------------------------
+def import_sources_modbus(xid_equip, updatePeriodType, enabled, host, 
+                          maxReadBitCount, maxReadRegisterCount, 
+                          maxWriteRegisterCount, port, retries, timeout, updatePeriods):
+    try:
+        raw_data = (
+                'callCount=1\n'
+                'page=/Scada-LTS/import_project.htm\n'
+                'httpSessionId=\n'
+                'scriptSessionId=D15BC242A0E69D4251D5585A07806324697\n'
+                'c0-scriptName=EmportDwr\n'
+                'c0-methodName=importData\n'
+                'c0-id=0\n'
+                'c0-param0=string:{"dataSources":[{"xid":"' +
+                str(xid_equip) + '", '
+                '"type":"MODBUS_IP", "alarmLevels":{"POINT_WRITE_EXCEPTION":"URGENT", '
+                '"DATA_SOURCE_EXCEPTION":"URGENT", "POINT_READ_EXCEPTION":"URGENT"}, '
+                '"updatePeriodType":"' + str(updatePeriodType) + '", '
+                '"transportType":"TCP", '
+                '"contiguousBatches":false, "createSlaveMonitorPoints":false, '
+                '"createSocketMonitorPoint":false, '
+                '"enabled":' + str(enabled).lower() + ', '
+                '"encapsulated":false, '
+                '"host":"' + str(host) + '", '
+                f'"maxReadBitCount":{maxReadBitCount}, '
+                f'"maxReadRegisterCount":{maxReadRegisterCount}, '
+                f'"maxWriteRegisterCount":{maxWriteRegisterCount}, '
+                '"name":"' + str(xid_equip) + '", '
+                f'"port":{port}, '
+                '"quantize":false, '
+                f'"retries":{retries}, '
+                f'"timeout":{timeout}, '
+                f'"updatePeriods":{updatePeriods}'
+                '}]}\n'
+                'batchId=8\n'
+            )
+        return raw_data
+    except ConnectionError as e:
+        logger.error(f"Erro no import de datasource Modbus para SCADA-LTS")
+        return None
+    
