@@ -227,7 +227,10 @@ def import_datasource_modbus(xid_equip, updatePeriodType, enabled, host,
     except ConnectionError as e:
         logger.error(f"Erro no import de datasource Modbus para SCADA-LTS")
         return None
-    
+
+# -------------------------------------------------------------
+# Função para importação de Datapoints Modbus no SCADA-LTS
+# -------------------------------------------------------------    
 def import_datapoint_modbus(xid_sensor, range, modbusDataType, additive, 
                             bit, multiplier, offset, slaveId,
                             xid_equip, enabled, nome):
@@ -274,7 +277,10 @@ def import_datapoint_modbus(xid_sensor, range, modbusDataType, additive,
         except ConnectionError as e:
             logger.error(f"Erro no import de datasource Modbus para SCADA-LTS")
             return None
-        
+ 
+# -------------------------------------------------------------
+# Função para importação de Datasources DNP3 no SCADA-LTS
+# -------------------------------------------------------------        
 def import_datasource_dnp3(xid_equip, eventsPeriodType, enabled, host, port,
                             rbePollPeriods, retries, slaveAddress, sourceAddress,
                             staticPollPeriods):
@@ -310,7 +316,10 @@ def import_datasource_dnp3(xid_equip, eventsPeriodType, enabled, host, port,
     except ConnectionError as e:
         logger.error(f"Erro no import de datasource DNP3 para SCADA-LTS")
         return None
-    
+
+# -------------------------------------------------------------
+# Função para importação de Datapoints DNP3 no SCADA-LTS
+# -------------------------------------------------------------    
 def import_datapoint_dnp3(xid_sensor, controlCommand, dnp3DataType, index, 
                           timeoff, timeon, xid_equip, enabled):
     try:

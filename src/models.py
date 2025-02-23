@@ -56,7 +56,6 @@ def after_update(mapper, connection, target):
 def after_delete(mapper, connection, target):
     trigger_message("deleção", target)
 
-
 ###########################################################
 ################## EQUIPAMENTOS MODBUS IP #################
 ###########################################################
@@ -113,7 +112,6 @@ def after_update(mapper, connection, target):
 def after_delete(mapper, connection, target):
     trigger_message("deleção", target)
 
-
 ###########################################################
 ################## REGISTRADORES MODBUS ###################
 ###########################################################
@@ -161,7 +159,6 @@ def after_update(mapper, connection, target):
 @event.listens_for(datapoints_modbus_ip, "after_delete")
 def after_delete(mapper, connection, target):
     trigger_message("deleção", target)
-
 
 ###########################################################
 ##################### EQUIPAMENTOS DNP3 ###################
@@ -219,7 +216,6 @@ def after_update(mapper, connection, target):
 def after_delete(mapper, connection, target):
     trigger_message("deleção", target)
 
-
 ###########################################################
 ######### SENSORES REGISTRADORES DNP3 DATAPOINTS ##########
 ###########################################################
@@ -237,7 +233,6 @@ class datapoints_dnp3(Base):
     tipo = Column(String, index=True)
     classificacao = Column(String, index=True)
     
-
 # Modelo de entrada para FastAPI
 class datapoints_dnp3_API(BaseModel):
     xid_sensor: str = Field(..., description="", example="")
@@ -252,7 +247,6 @@ class datapoints_dnp3_API(BaseModel):
     tipo: str = Field(..., description="", example="")
     classificacao: str = Field(..., description="", example="")
 
-
 # Eventos do SQLAlchemy para capturar alterações
 @event.listens_for(datapoints_dnp3, "after_insert")
 def after_insert(mapper, connection, target):
@@ -265,7 +259,6 @@ def after_update(mapper, connection, target):
 @event.listens_for(datapoints_dnp3, "after_delete")
 def after_delete(mapper, connection, target):
     trigger_message("deleção", target)
-
 
 ###########################################################
 ##################### TAGS EQUIPAMENTOS ###################
@@ -296,7 +289,6 @@ def after_update(mapper, connection, target):
 def after_delete(mapper, connection, target):
     trigger_message("deleção", target)
 
-
 ###########################################################
 ####################### TAGS SENSORES #####################
 ###########################################################
@@ -325,8 +317,6 @@ def after_update(mapper, connection, target):
 @event.listens_for(dp_tags, "after_delete")
 def after_delete(mapper, connection, target):
     trigger_message("deleção", target)
-
-
 
 ###########################################################
 ####################### PERSISTENCE #####################
