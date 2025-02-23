@@ -1,6 +1,7 @@
 
 import pika
 import configparser
+from logger import *
 
 CONFIG_FILE = "config.ini"
 
