@@ -274,3 +274,39 @@ def import_datapoint_modbus(xid_sensor, range, modbusDataType, additive,
         except ConnectionError as e:
             logger.error(f"Erro no import de datasource Modbus para SCADA-LTS")
             return None
+        
+def import_datapoint_modbus(xid_equip, eventsPeriodType, enabled, host, port,
+                            rbePollPeriods, retries, slaveAddress, sourceAddress,
+                            staticPollPeriods):
+    try:
+        raw_data = (
+                'callCount=1\n'
+                'page=/Scada-LTS/import_project.htm\n'
+                'httpSessionId=\n'
+                'scriptSessionId=D15BC242A0E69D4251D5585A07806324697\n'
+                'c0-scriptName=EmportDwr\n'
+                'c0-methodName=importData\n'
+                'c0-id=0\n'
+                'c0-param0=string:{"dataSources":[{"xid":"' +
+                str(xid_equip) + '",'
+                '"type":"DNP3_IP",'
+                '"alarmLevels":{"DATA_SOURCE_EXCEPTION":"URGENT","POINT_READ_EXCEPTION":"URGENT"},'
+                '"eventsPeriodType":"' + str(eventsPeriodType) + '",'
+                '"enabled":' + str(enabled).lower() +','
+                '"host":"' + str(host) + '","name":"' +
+                str(xid_equip) + '",'
+                f'"port":{port},'
+                '"quantize":false,'
+                f'"rbePollPeriods":{rbePollPeriods},'
+                f'"retries":{retries},'
+                f'"slaveAddress":{slaveAddress},'
+                f'"sourceAddress":{sourceAddress},'
+                f'"staticPollPeriods":{staticPollPeriods},'
+                f'"synchPeriods":30,'
+                '"timeout":800}]}\n'
+                'batchId=8\n'
+            )
+        return raw_data
+    except ConnectionError as e:
+        logger.error(f"Erro no import de datasource Modbus para SCADA-LTS")
+        return None
