@@ -275,7 +275,7 @@ def import_datapoint_modbus(xid_sensor, range, modbusDataType, additive,
             logger.error(f"Erro no import de datasource Modbus para SCADA-LTS")
             return None
         
-def import_datapoint_modbus(xid_equip, eventsPeriodType, enabled, host, port,
+def import_datasource_dnp3(xid_equip, eventsPeriodType, enabled, host, port,
                             rbePollPeriods, retries, slaveAddress, sourceAddress,
                             staticPollPeriods):
     try:
@@ -308,5 +308,48 @@ def import_datapoint_modbus(xid_equip, eventsPeriodType, enabled, host, port,
             )
         return raw_data
     except ConnectionError as e:
-        logger.error(f"Erro no import de datasource Modbus para SCADA-LTS")
+        logger.error(f"Erro no import de datasource DNP3 para SCADA-LTS")
+        return None
+    
+def import_datapoint_dnp3(xid_sensor, controlCommand, dnp3DataType, index, 
+                          timeoff, timeon, xid_equip, enabled):
+    try:
+        raw_data = (
+                'callCount=1\n'
+                'page=/Scada-LTS/import_project.htm\n'
+                'httpSessionId=\n'
+                'scriptSessionId=D15BC242A0E69D4251D5585A07806324697\n'
+                'c0-scriptName=EmportDwr\n'
+                'c0-methodName=importData\n'
+                'c0-id=0\n'
+                'c0-param0=string:{"dataPoints":[{"xid":"' +
+                str(xid_sensor) + '",'
+                '"loggingType":"ON_CHANGE",'
+                '"intervalLoggingPeriodType":"MINUTES","intervalLoggingType":"INSTANT",'
+                '"purgeType":"YEARS","pointLocator":{"additive":0.0,'
+                f'"controlCommand":{controlCommand},'
+                f'"dnp3DataType":{dnp3DataType},'
+                f'"index":{index},'
+                '"multiplier":1.0,"operateMode":2,"settable":false,'
+                f'"timeOff":{timeoff},'
+                f'"timeOn":{timeon}'
+                '},"eventDetectors":[],"engineeringUnits":"",'
+                '"purgeStrategy":"PERIOD","chartColour":null,"chartRenderer":null,'
+                '"dataSourceXid":"' +
+                str(xid_equip) +
+                '","defaultCacheSize":1,"description":null,'
+                '"deviceName":"' + str(xid_sensor) +
+                '","discardExtremeValues":false,'
+                '"discardHighLimit":1.7976931348623157,"discardLowLimit":-1.7976931348623157,'
+                '"enabled":' + str(enabled).lower() +','
+                '"eventTextRenderer":{"type":"EVENT_NONE"},"intervalLoggingPeriod":15,'
+                '"name":"' +
+                str(xid_sensor) +
+                '","purgePeriod":1,"purgeValuesLimit":100,"textRenderer":'
+                '{"type":"PLAIN","suffix":""},"tolerance":0.0}]}\n'
+                'batchId=8\n'
+            )     
+        return raw_data
+    except ConnectionError as e:
+        logger.error(f"Erro no import de datapoint DNP3 para SCADA-LTS")
         return None
