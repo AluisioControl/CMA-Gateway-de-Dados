@@ -141,7 +141,6 @@ def thr_get_system_info():
             print("Nenhuma conexão de rede com cabo detectada.\n")
         time.sleep(15)
 
-
 # -------------------------------------------------------------
 # Rotina de autenticação no SCADA-LTS
 # -------------------------------------------------------------
@@ -171,7 +170,6 @@ def auth_ScadaLTS():
         print("AUTH SCADA")
     except ConnectionError as e:
         logger.error(f"Erro ao tentar autenticar no SCADA-LTS: {e}")
-
 
 # -------------------------------------------------------------
 # Função para envio de dados para o SCADA-LTS
@@ -221,7 +219,6 @@ def get_cookie_from_url(url):
     finally:
         curl.close()
 
-
 # -------------------------------------------------------------
 # Função para fazer um GET na URL fornecida usando o cookie
 # e retorna o JSON da resposta.
@@ -263,7 +260,6 @@ def get_with_cookie(url, cookie):
         buffer.close()
         curl.close()
 
-
 # -------------------------------------------------------------
 # Função para fazer o parse de um JSON e retorna o valor
 # associado a uma chave fornecida pelo usuário.
@@ -283,9 +279,6 @@ def parse_json_response(json_response, key):
     except Exception as e:
         logger.error(f"Erro ao processar o JSON: {e}")
         return f"Erro ao processar o JSON: {e}"
-
-
-
 
 # -------------------------------------------------------------
 # Rotina de captura de todos os xid_equip e xid_sensor
@@ -313,7 +306,6 @@ def get_tags_from_table(table_class, field_name, xid):
 
     finally:
         session.close()
-
 
 # -----------------------------------------------------------------------
 # Busca pares de valores das colunas 'nome' e 'valor' de uma tabela
@@ -350,8 +342,6 @@ def fetch_name_value_pairs(table_class, field_name, xid):
             f"Erro ao buscar pares de valores das colunas 'nome' e 'valor' de uma tabela: {e}")
     finally:
         session.close()
-
-
 
 # -------------------------------------------------------------
 # Função para geração de um Payload (arquivo JSON) de múltiplas
@@ -573,7 +563,6 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
     finally:
         session.close()
 
-
 # -------------------------------------------------------------
 # Rotina de persistencia de envio de dados para MQTT
 # -------------------------------------------------------------
@@ -648,11 +637,6 @@ def send_data_to_mqtt(content_data):
     finally:
         session.close()
 
-
-
-
-
-
 # --------------------------------------------------------------------
 # Função que coleta "xid_equip", "updatePeriods", "updatePeriodType"
 # da tabela de sensores Modbus
@@ -693,9 +677,6 @@ def getPeriods_eqp_dnp3(table_class):
     finally:
         session.close()
 
-
-            
-
 # -------------------------------------------------------------
 # Função que recebe o vetor de xid_sensor encontrados
 # numa tabela de datapoint e envia um a um para o broker
@@ -707,8 +688,6 @@ def send_xid_sensor(valor, protocol):
         #print("send_xid_sensor = ", "valor:", valor , "protocol:", protocol, "payload_mqtt:", payload_mqtt)
         send_data_to_mqtt(payload_mqtt)
     
-
-
 # -------------------------------------------------------------
 # Rotinas de conversão de tempo para millisegundos
 # ------------------------------------------------------------- 
@@ -720,10 +699,6 @@ def convert_to_seconds(time_value, unit):
         'HOURS': 3600
     }
     return time_value * conversion_factors.get(unit, 1)
-
-
-
-
 
 #--------------------------------------------------------------------------
 # Retorna o xid_sensor da tabela datapoints_modbus_ip passando-se o xid_equip
@@ -742,7 +717,6 @@ def get_xid_sensor_from_eqp_modbus(xid_equip_modbus):
     finally:
         session.close()
 
-
 #--------------------------------------------------------------------------
 # Retorna o xid_sensor da tabela datapoints_dnp3 passando-se o xid_equip
 #--------------------------------------------------------------------------
@@ -759,8 +733,6 @@ def get_xid_sensor_from_eqp_dnp3(xid_equip_dnp3):
             f"Erro ao capturar o xid_sensor da tabela datapoints_dnp3: {e}")
     finally:
         session.close()
-
-
 
 # -------------------------------------------------------------
 # Rotinas de envio de dados sensor modbus para MQTT
@@ -781,8 +753,6 @@ def execute_sensors_modbus(xid_modbus, interval, stop_event):
             print("Comunicação com SCADA perdida!")
         time.sleep(1)
 
-
-
 # -------------------------------------------------------------
 # Rotinas de envio de dados sensor DNP3 para MQTT
 # ------------------------------------------------------------- 
@@ -802,9 +772,6 @@ def execute_sensors_dnp3(xid_dnp3, interval, stop_event):
             print("Comunicação com SCADA perdida!")
         time.sleep(1)
         
-
-
-
 # Função de verificação de status do servidor
 def thr_check_server_online(host: str, port: int, servername: str):
     while True:
@@ -834,7 +801,6 @@ def thr_check_server_online(host: str, port: int, servername: str):
         print("---------------------------------------------------------------\n")
         print("")
         time.sleep(30)
-
 
 # Função de controle para sensores Modbus
 def thr_start_routines_sensor_modbus(datasource):
@@ -875,7 +841,6 @@ def thr_start_routines_sensor_modbus(datasource):
 
         time.sleep(1)
 
-
 # Função de controle para sensores DNP3
 def thr_start_routines_sensor_dnp3(datasource):
     routines_map = {}
@@ -914,7 +879,6 @@ def thr_start_routines_sensor_dnp3(datasource):
                 del routines_map[id_]
 
         time.sleep(1)
-
 
 # Função de inicialização das threads de verificação de servidores
 def start_service_checker():

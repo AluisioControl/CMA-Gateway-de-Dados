@@ -188,7 +188,7 @@ def send_data_to_scada(raw_data):
 # -------------------------------------------------------------
 # Função para importação de Datasources Modbus no SCADA-LTS
 # -------------------------------------------------------------
-def import_sources_modbus(xid_equip, updatePeriodType, enabled, host, 
+def import_datasource_modbus(xid_equip, updatePeriodType, enabled, host, 
                           maxReadBitCount, maxReadRegisterCount, 
                           maxWriteRegisterCount, port, retries, timeout, updatePeriods):
     try:
@@ -228,3 +228,49 @@ def import_sources_modbus(xid_equip, updatePeriodType, enabled, host,
         logger.error(f"Erro no import de datasource Modbus para SCADA-LTS")
         return None
     
+def import_datapoint_modbus(xid_sensor, range, modbusDataType, additive, 
+                            bit, multiplier, offset, slaveId,
+                            xid_equip, enabled, nome):
+        try:
+            raw_data = (
+                'callCount=1\n'
+                'page=/Scada-LTS/import_project.htm\n'
+                'httpSessionId=\n'
+                'scriptSessionId=D15BC242A0E69D4251D5585A07806324697\n'
+                'c0-scriptName=EmportDwr\n'
+                'c0-methodName=importData\n'
+                'c0-id=0\n'
+                'c0-param0=string:{"dataPoints":[{"xid":"' +
+                str(xid_sensor) + '",'
+                '"loggingType":"ON_CHANGE",'
+                '"intervalLoggingPeriodType":"MINUTES",'
+                '"intervalLoggingType":"INSTANT",'
+                '"purgeType":"YEARS",'
+                '"pointLocator":{"range":"' + str(range) + '",'
+                '"modbusDataType":"' + str(modbusDataType) + '",'
+                f'"additive":{additive},'
+                f'"bit":{bit},'
+                '"charset":"ASCII",'
+                f'"multiplier":{multiplier},'
+                f'"offset":{offset},'
+                '"registerCount":0,"settableOverride":false,'
+                f'"slaveId":{slaveId},'
+                '"slaveMonitor":false,"socketMonitor":false},'
+                '"eventDetectors":[],"engineeringUnits":"","purgeStrategy":"PERIOD",'
+                '"chartColour":null,"chartRenderer":null,"dataSourceXid":"' +
+                str(xid_equip) + '",'
+                '"defaultCacheSize":1,"description":null,"deviceName":"' +
+                str(xid_sensor) + '",'
+                '"discardExtremeValues":false,"discardHighLimit":1.7976931348623157,'
+                '"discardLowLimit":-1.7976931348623157,'
+                '"enabled":' + str(enabled).lower() + ', '
+                '"eventTextRenderer"'
+                ':{"type":"EVENT_NONE"},"intervalLoggingPeriod":15,"name":"' +
+                str(nome) + '","purgePeriod":1,'
+                '"purgeValuesLimit":100,"textRenderer":{"type":"PLAIN","suffix":""},"tolerance":0}]}\n'
+                'batchId=8\n'
+            )
+            return raw_data
+        except ConnectionError as e:
+            logger.error(f"Erro no import de datasource Modbus para SCADA-LTS")
+            return None
