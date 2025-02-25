@@ -8,7 +8,7 @@ Repositório pra projeto com Instituto Atlântico e ISA CTEEP
   
 * Para rodar o configurador, abra o terminal no mesmo diretório do script e digite:
 
- ./config.sh
+    ./config.sh
 
 * Para rodar as rotinas de testes digite no diretório 'tests':
 
