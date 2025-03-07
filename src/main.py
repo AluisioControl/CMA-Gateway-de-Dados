@@ -778,12 +778,12 @@ def thr_start_routines_sensor(datasource, protocol):
 # =======================================================================
 def start_main_threads():
     """Inicia os processos para checar servidores.""" 
-    
+    '''
     if "process_cma" not in active_threads:
         process_cma = threading.Thread(target=thr_check_server_online, args=("127.0.0.1", 5000, "CMA"), daemon=True)
         active_threads["process_cma"] = process_cma  # Armazena a referência da thread
         process_cma.start()
-
+    '''
     if "process_scada" not in active_threads:
         process_scada = threading.Thread(target=thr_check_server_online, args=("127.0.0.1", 8080, "SCADA-LTS"), daemon=True)
         active_threads["process_scada"] = process_scada  # Armazena a referência da thread
