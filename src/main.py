@@ -128,14 +128,14 @@ def thr_get_system_info():
             f"Tempo de Funcionamento: {int(uptime_hours)}h {int(uptime_minutes)}min")
 
         if network_data:
-            print("\n===== INFORMAÇÕES DA REDE =====")
+            print("\n=====  INFORMAÇÕES DA REDE   =====")
             print(f"Interface: {network_data['Interface']}")
-            print(f"  IP: {network_data['IP']}")
-            print(f"  Máscara: {network_data['Máscara']}")
-            print(f"  Status: {network_data['Status']}")
-            print(f"  Velocidade: {network_data['Velocidade']}\n")
+            print(f"IP: {network_data['IP']}")
+            print(f"Máscara: {network_data['Máscara']}")
+            print(f"Status: {network_data['Status']}")
+            print(f"Velocidade: {network_data['Velocidade']}\n")
         else:
-            print("\n===== INFORMAÇÕES DA REDE =====")
+            print("\n=====  INFORMAÇÕES DA REDE   =====")
             print("Nenhuma conexão de rede com cabo detectada.\n")
         time.sleep(int(HEALTH_SYSTEM_CHECK_INTERVAL))
 
@@ -386,6 +386,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
     finally:
         session.close()
 
+
 def send_data_to_mqtt(content_data):
 
     """
@@ -514,7 +515,6 @@ def get_periods_eqp(table_class, protocol):
         session.close()
             
 
-
 def send_to_mqtt_broker(valor, protocol):
 
     """
@@ -557,8 +557,6 @@ def convert_to_seconds(time_value, unit):
     return time_value * conversion_factors.get(unit, 1)
 
 
-
-
 def get_xid_sensor_from_eqp_modbus(xid_equip_modbus):
 
     """
@@ -572,22 +570,16 @@ def get_xid_sensor_from_eqp_modbus(xid_equip_modbus):
     """
     try:
         session = SessionLocal()
-        '''
+        
         query = select(datapoints_modbus_ip.xid_sensor).where(
             datapoints_modbus_ip.xid_equip == xid_equip_modbus)
-        '''
-        #Corrigindo pois está buscando um datapoint dentro de uma tabela de datasource
-        query = select(datasource_modbus_ip.xid_sensor).where(
-            datasource_modbus_ip.xid_equip == xid_equip_modbus)
         result = session.execute(query).scalars().first()
-
         return result
     except Exception as e:
         logger.error(
             f"Erro ao capturar o xid_sensor da tabela xid_equip_modbus_ip: {e}")
     finally:
         session.close()
-
 
 
 def get_xid_sensor_from_eqp_dnp3(xid_equip_dnp3):
@@ -616,7 +608,6 @@ def get_xid_sensor_from_eqp_dnp3(xid_equip_dnp3):
         session.close()
 
 
-
 def execute_sensors_modbus(xid_modbus, interval, stop_event):
     """ 
     Executa a rotina de coleta dos tempos para envio dos dados dos 
@@ -638,7 +629,7 @@ def execute_sensors_modbus(xid_modbus, interval, stop_event):
                 return  # Sai imediatamente se o evento foi acionado
             time.sleep(0.1)
         if STATUS_SCADA == "ONLINE":
-            print(f"\nEnviando para MQTT dados xid_sensor mdbus:{xid_modbus} a cada {interval} segundo(s)")
+            print(f"\nEnviando para MQTT dados xid_sensor mdbus:{xid_modbus} a cada {interval/60} minuto(s)")
             xid_sensor_modbus = get_xid_sensor_from_eqp_modbus(xid_modbus)
             print("Sensor modbus: ", xid_sensor_modbus)
             agora = datetime.now()
@@ -648,7 +639,6 @@ def execute_sensors_modbus(xid_modbus, interval, stop_event):
             print(f"Comunicação com SCADA perdida ao enviar dados xid_sensor modbus:{xid_modbus}!")
             logger.error(f"Comunicação com SCADA perdida ao enviar dados xid_sensor modbus:{xid_modbus}!")
         time.sleep(1)
-
 
 
 def execute_sensors_dnp3(xid_dnp3, interval, stop_event):
@@ -713,10 +703,9 @@ def thr_check_server_online(host: str, port: int, servername: str):
         if conexao == "OFFLINE":
             logger.error(f"Servidor {servername} está offline!")
 
-        print("---------------------------------------------------------------")
-        print("SERVER STATUS ["+servername+"]:", conexao)
-        print("---------------------------------------------------------------\n")
-        print("")
+        print("\n=====   CONEXÃO COM SCADA    =====")
+        print("["+servername+"]:", conexao)
+        print("\n")
         time.sleep(int(STATUS_SERVER_CHECK_INTERVAL))
 
 
@@ -779,8 +768,6 @@ def thr_start_routines_sensor(datasource, protocol):
         time.sleep(1)
 
 
-
-
 # =======================================================================
 # Função principal de inicialização das threads de 
 # de envio de dados para MQTT e verificação de conexão com servidores
@@ -816,8 +803,6 @@ def start_main_threads():
         active_threads["dnp3_thread"] = dnp3_thread  # Armazena a referência da thread
         dnp3_thread.start()
     
-
-
 
 if __name__ == "__main__":
     start_main_threads()
