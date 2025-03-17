@@ -531,6 +531,7 @@ def send_to_mqtt_broker(valor, protocol):
 
     if valor != "null":
         payload_mqtt = process_json_datapoints(valor, protocol)
+        print(payload_mqtt)
         send_data_to_mqtt(payload_mqtt)
     
 
@@ -634,6 +635,9 @@ def execute_sensors_modbus(xid_modbus, interval, stop_event):
         if STATUS_SCADA == "ONLINE":
             print(f"\nEnviando para MQTT dados xid_sensor mdbus:{xid_modbus} a cada {interval} segundo(s)")
             xid_sensor_modbus = get_xid_sensor_from_eqp_modbus(xid_modbus)
+            print("Sensor modbus: ", xid_sensor_modbus)
+            agora = datetime.now()
+            print(agora.strftime("%Y-%m-%d %H:%M:%S"))  # Exemplo: 2025-03-16 14:32:15
             send_to_mqtt_broker(xid_sensor_modbus,"MODBUS")
         else:
             print(f"Comunicação com SCADA perdida ao enviar dados xid_sensor modbus:{xid_modbus}!")
