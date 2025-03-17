@@ -531,7 +531,7 @@ def send_to_mqtt_broker(valor, protocol):
 
     if valor != "null":
         payload_mqtt = process_json_datapoints(valor, protocol)
-        print(payload_mqtt)
+        print("Payload rabbitmq: ", payload_mqtt)
         send_data_to_mqtt(payload_mqtt)
     
 
@@ -572,8 +572,13 @@ def get_xid_sensor_from_eqp_modbus(xid_equip_modbus):
     """
     try:
         session = SessionLocal()
+        '''
         query = select(datapoints_modbus_ip.xid_sensor).where(
             datapoints_modbus_ip.xid_equip == xid_equip_modbus)
+        '''
+        #Corrigindo pois está buscando um datapoint dentro de uma tabela de datasource
+        query = select(datasource_modbus_ip.xid_sensor).where(
+            datasource_modbus_ip.xid_equip == xid_equip_modbus)
         result = session.execute(query).scalars().first()
 
         return result
