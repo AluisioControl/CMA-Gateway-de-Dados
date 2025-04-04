@@ -369,7 +369,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                         ]
                     }
                     result = json.dumps(response_data, indent=4, ensure_ascii=False)
-                    print("result = ", result)
+                    #print("result = ", result)
                 except:
                     print("Erro ao gerar JSON com dados do xid_sensor", xid_sensor)
                     logger.error(f"Erro ao gerar JSON com dados do xid_sensor {xid_sensor}")
@@ -409,8 +409,8 @@ def send_data_to_mqtt(content_data):
     2. Percorre a tabela e envia o JSON onde sended = False.
        Se o envio for sucesso altera o campo sended = True
     """
-
-    if not content_data:
+    print("send_data_to_mqtt -> content_data = ", content_data)
+    if  content_data == None:
         print("Nenhum conteúdo para enviar ao MQTT!")
         return
 
@@ -463,7 +463,7 @@ def send_data_to_mqtt(content_data):
                 result = session.execute(query)
                 session.commit()
                 if result:
-                    print("Exclusão de registro temporário concluído com sucesso!")
+                    print("Exclusão de registro temporário concluído com sucesso!\n\n\n")
                 else:
                     print("Falha ao excluir registro temporário!")
 
@@ -515,24 +515,6 @@ def get_periods_eqp(table_class, protocol):
         session.close()
             
 
-def send_to_mqtt_broker(valor, protocol):
-
-    """
-    Envia o valor de um datapoint para o broker MQTT.
-
-    Args:
-        valor: Valor do datapoint em formato JSON.
-        protocol (str): Protocolo do datapoint, pode ser "modbus" ou "dnp3".
-
-    Notes:
-        - O valor é processado pela função process_json_datapoints.
-        - Se o valor for "null", o datapoint não é enviado.
-    """
-
-    if valor != "null":
-        payload_mqtt = process_json_datapoints(valor, protocol)
-        print("Payload rabbitmq: ", payload_mqtt)
-        send_data_to_mqtt(payload_mqtt)
     
 
 def convert_to_seconds(time_value, unit):
@@ -573,7 +555,8 @@ def get_xid_sensor_from_eqp_modbus(xid_equip_modbus):
         
         query = select(datapoints_modbus_ip.xid_sensor).where(
             datapoints_modbus_ip.xid_equip == xid_equip_modbus)
-        result = session.execute(query).scalars().first()
+        result = session.execute(query).scalars().all()
+        print("xid_sensor modbus: ", result)
         return result
     except Exception as e:
         logger.error(
@@ -630,11 +613,15 @@ def execute_sensors_modbus(xid_modbus, interval, stop_event):
             time.sleep(0.1)
         if STATUS_SCADA == "ONLINE":
             print(f"\nEnviando para MQTT dados xid_sensor mdbus:{xid_modbus} a cada {interval/60} minuto(s)")
-            xid_sensor_modbus = get_xid_sensor_from_eqp_modbus(xid_modbus)
-            print("Sensor modbus: ", xid_sensor_modbus)
+            list_xid_sensor_modbus = get_xid_sensor_from_eqp_modbus(xid_modbus)
+            
             agora = datetime.now()
             print(agora.strftime("%Y-%m-%d %H:%M:%S"))  # Exemplo: 2025-03-16 14:32:15
-            send_to_mqtt_broker(xid_sensor_modbus,"MODBUS")
+            for xid_sensor_modbus in list_xid_sensor_modbus:
+                print("Enviando para mqtt dados do sensor modbus: ", xid_sensor_modbus)
+                payload = process_json_datapoints(xid_sensor_modbus, "MODBUS")
+                send_data_to_mqtt(payload)
+
         else:
             print(f"Comunicação com SCADA perdida ao enviar dados xid_sensor modbus:{xid_modbus}!")
             logger.error(f"Comunicação com SCADA perdida ao enviar dados xid_sensor modbus:{xid_modbus}!")
@@ -663,8 +650,11 @@ def execute_sensors_dnp3(xid_dnp3, interval, stop_event):
             time.sleep(0.1)
         if STATUS_SCADA == "ONLINE":
             print(f"\nEnviando para MQTT dados xid_sensor dnp3:{xid_dnp3} a cada {interval} segundo(s)")
-            xid_sensor_dnp3 = get_xid_sensor_from_eqp_dnp3(xid_dnp3)
-            send_to_mqtt_broker(xid_sensor_dnp3,"DNP3")
+            list_xid_sensor_dnp3 = get_xid_sensor_from_eqp_dnp3(xid_dnp3)
+            for xid_sensor_dnp3 in list_xid_sensor_dnp3:
+                print("Enviando para mqtt dados do sensor dnp3: ", xid_sensor_dnp3)
+                payload = process_json_datapoints(xid_sensor_dnp3, "DNP3")
+                send_data_to_mqtt(payload)
         else:
             print(f"Comunicação com SCADA perdida ao enviar dados xid_sensor DNP3:{xid_dnp3}!")
             logger.error(f"Comunicação com SCADA perdida ao enviar dados xid_sensor DNP3:{xid_dnp3}!")
@@ -797,7 +787,7 @@ def start_main_threads():
         modbus_thread = threading.Thread(target=thr_start_routines_sensor, args=(datasource_modbus_ip,"modbus"), daemon=True)
         active_threads["modbus_thread"] = modbus_thread  # Armazena a referência da thread
         modbus_thread.start()
-    
+
     if "dnp3_thread" not in active_threads:
         dnp3_thread = threading.Thread(target=thr_start_routines_sensor, args=(datasource_dnp3,"dnp3"), daemon=True)
         active_threads["dnp3_thread"] = dnp3_thread  # Armazena a referência da thread
