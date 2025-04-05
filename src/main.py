@@ -581,7 +581,7 @@ def get_xid_sensor_from_eqp_dnp3(xid_equip_dnp3):
         session = SessionLocal()
         query = select(datapoints_dnp3.xid_sensor).where(
             datapoints_dnp3.xid_equip == xid_equip_dnp3)
-        result = session.execute(query).scalars().first()
+        result = session.execute(query).scalars().all()
 
         return result
     except Exception as e:
