@@ -212,7 +212,6 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
     Returns:
         json: payload Json com os dados para ser enviados para Scada-LTS
     """
-
     session = SessionLocal()
 
     try:
@@ -297,27 +296,44 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
             subestacao = no_data if not result_cma_gateway else result_cma_gateway.subestacao
             regional = no_data if not result_cma_gateway else result_cma_gateway.regional
             host_gateway = no_data if not result_cma_gateway else result_cma_gateway.host
-            status_gateway = no_data if not result_cma_gateway else result_cma_gateway.status
+            gtw_id = no_data if not result_cma_gateway else result_cma_gateway.id_gtw
+            sub_id = no_data if not result_cma_gateway else result_cma_gateway.id_sub            
+            
 
             # Coletando variáveis de interesse DATASOURCE MODBUS IP
             xid_equip = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.xid_equip
             fabricante = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.fabricante
-            marca = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.marca
-            modelo = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.modelo
-            type_ = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.type
+            #marca = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.marca
+            #modelo = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.modelo
+            #type_ = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.type
             sap_id = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.sap_id
-            status_datasource = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.enabled
+            #status_datasource = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.enabled
             host_datasource = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.host
-            
+            id_hdw_id = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.id_hdw
+            name_hdw_name = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.name_hdw
+            type_sen_type = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.type_sen
+            model_sen_model = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.model_sen
+            name_sen_name = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.name_sen
+            id_man_id = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.id_man
 
             # Coletando variáveis de interesse DATAPOINTS MODBUS IP
             xid_sensor = no_data if not result_datapoints else result_datapoints.xid_sensor
             registrador = no_data if not result_datapoints else result_datapoints.offset
             nome = no_data if not result_datapoints else result_datapoints.nome
-            tipo = no_data if not result_datapoints else result_datapoints.tipo
-            classificacao = no_data if not result_datapoints else result_datapoints.classificacao
-            status_datapoints = no_data if not result_datapoints else result_datapoints.enabled
-            
+            #tipo = no_data if not result_datapoints else result_datapoints.tipo
+            #classificacao = no_data if not result_datapoints else result_datapoints.classificacao
+            #status_datapoints = no_data if not result_datapoints else result_datapoints.enabled
+            #register_id_reg = no_data if not result_datapoints else result_datapoints.register_id
+            #register_name_reg = no_data if not result_datapoints else result_datapoints.register_name
+            #register_reg = no_data if not result_datapoints else result_datapoints.register
+            phase_reg= no_data if not result_datapoints else result_datapoints.phase
+            circuitBreakerManeuverType_reg = no_data if not result_datapoints else result_datapoints.circuitBreakerManeuverType_reg_mod
+            bushingSide_reg = no_data if not result_datapoints else result_datapoints.bushingSide
+            register_type_id_reg = no_data if not result_datapoints else result_datapoints.id_reg_reg_mod
+            register_type_reg = no_data if not result_datapoints else result_datapoints.classificacao
+            sensor_type_id_reg = no_data if not result_datapoints else result_datapoints.id_sen_reg_mod
+            sensor_type_reg = no_data if not result_datapoints else result_datapoints.tipo
+          
        
         if xid_sensor != no_data:
             if get_json_data(xid_sensor) != None:
@@ -332,44 +348,52 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
 
                 try:
                     response_data = {
-                        "data_gateway": [  
+                        "gateways": [  
                             {
-                                "ID": gateway_id,
-                                "Subestacao": subestacao,
-                                "Regional": regional,
-                                "IP": host_gateway,
-                                "Status": status_gateway
+                                "timestamp":timestamp,
+                                "gateway_id": gtw_id,
+                                "gateway_name":gateway_id,
+                                "gateway_ip":host_gateway,
+                                "SE_id":sub_id,
+                                "SE":subestacao,
+                                "SE_Region":regional
                             }
                         ],
-                        "dataSources": [
+                        "sensors": [
                             {
-                                "Equipamento": xid_equip,
-                                "Fabricante": fabricante,
-                                "Marca": marca,
-                                "Modelo": modelo,
-                                "Protocolo": type_,
-                                "SAP_id": sap_id,
-                                "IP": host_datasource,
-                                "Status": status_datasource,
-                                "tags_equipamento": xid_eqp_tags
+                                "hardware_id": id_hdw_id,
+                                "hardware_name": name_hdw_name,
+                                "sap_id": sap_id,
+                                "type": type_sen_type,
+                                "model": model_sen_model,
+                                "sensor_id":xid_equip,
+                                "sensor_name": name_sen_name,
+                                "sensor_ip":host_datasource,
+                                "sensor_protocol": protocol,
+                                "manufacturer_id": id_man_id,
+                                "manufacturer_name": fabricante,
+                                "sensor_tags": xid_eqp_tags
                             }
                         ],
-                        "dataPoints": [
+                        "registers": [
                             {
-                                "timestamp": timestamp,
-                                "Sensor": xid_sensor,
-                                "Valor": extracted_value,
-                                "Registrador": registrador,
-                                "Nome": nome,
-                                "Tipo": tipo,
-                                "Classificacao": classificacao,
-                                "Status": status_datapoints,
+                                "register_id": xid_sensor,
+                                "register_name": nome,
+                                "register": registrador,
+                                "phase":phase_reg,
+                                "circuitBreakerManeuverType":circuitBreakerManeuverType_reg,
+                                "bushingSide":bushingSide_reg,
+                                "register_type_id":register_type_id_reg,
+                                "register_type":register_type_reg,
+                                "sensor_type_id":sensor_type_id_reg,
+                                "sensor_type":sensor_type_reg,
+                                "register_value": extracted_value,
                                 "tags_sensor": xid_dp_tags
                             }
                         ]
                     }
                     result = json.dumps(response_data, indent=4, ensure_ascii=False)
-                    #print("result = ", result)
+                    print("result = ", result)
                 except:
                     print("Erro ao gerar JSON com dados do xid_sensor", xid_sensor)
                     logger.error(f"Erro ao gerar JSON com dados do xid_sensor {xid_sensor}")
@@ -385,7 +409,6 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
 
     finally:
         session.close()
-
 
 def send_data_to_mqtt(content_data):
 
@@ -605,6 +628,7 @@ def execute_sensors_modbus(xid_modbus, interval, stop_event):
     returns:
         None
     """
+    print("entrou no execute_sensors_modbus...")
     while not stop_event.is_set():
         for _ in range(int(interval * 10)):  # delay de 0.1s
             if stop_event.is_set():
