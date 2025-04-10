@@ -134,7 +134,12 @@ def thr_get_system_info():
             print(f"Máscara: {network_data['Máscara']}")
             print(f"Status: {network_data['Status']}")
             print(f"Velocidade: {network_data['Velocidade']}\n")
-            payload = {
+            
+        else:
+            print("\n=====  INFORMAÇÕES DA REDE   =====")
+            print("Nenhuma conexão de rede com cabo detectada.\n")
+        
+        payload = {
                 "sistema": {
                         "memoria_ram": {
                             "usada_gb": round(used_ram, 2),
@@ -162,12 +167,9 @@ def thr_get_system_info():
                         }
                     }
                 }
-            print(payload)
-            sys_info = json.dumps(payload, indent=4, ensure_ascii=False)
-            send_data_to_mqtt(sys_info)
-        else:
-            print("\n=====  INFORMAÇÕES DA REDE   =====")
-            print("Nenhuma conexão de rede com cabo detectada.\n")
+        print(payload)
+        sys_info = json.dumps(payload, indent=4, ensure_ascii=False)
+        send_data_to_mqtt(sys_info)
             
         time.sleep(int(HEALTH_SYSTEM_CHECK_INTERVAL))
 
@@ -357,9 +359,9 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
           
        
         if xid_sensor != no_data:
-            print("Entrando no if xid_sensor\n")
+            #print("Entrando no if xid_sensor\n")
             if get_json_data(xid_sensor) != None:
-                print("Entrando no get_json_data(xid_sensor)\n")
+                #print("Entrando no get_json_data(xid_sensor)\n")
                 
                 extracted_value = get_json_data(xid_sensor)
                 extracted_value = parse_json_response(extracted_value, 'value')
@@ -463,7 +465,7 @@ def send_data_to_mqtt(content_data):
 
     session = SessionLocal()
     try:
-        print("Entrando no try send rabbitmq")
+        #print("Entrando no try send rabbitmq")
         send_success = False
         # 1 - Armazena o JSON no campo content_data
         # e atribui False no campo sended
@@ -652,7 +654,7 @@ def execute_sensors_modbus(xid_modbus, interval, stop_event):
     returns:
         None
     """
-    print("entrou no execute_sensors_modbus...")
+    #print("entrou no execute_sensors_modbus...")
     while not stop_event.is_set():
         for _ in range(int(interval * 10)):  # delay de 0.1s
             if stop_event.is_set():
@@ -746,9 +748,8 @@ def thr_check_server_online(host: str, port: int, servername: str):
     
         print("\n=====   CONEXÃO COM SCADA    =====")
         print("["+servername+"]:", conexao)
-        print("Status de autenticação com SCADA:", STATUS_AUTH_SCADA)
-        print("\n")
-        
+        #print("Status de autenticação com SCADA:", STATUS_AUTH_SCADA)
+        #print("\n")       
             
         time.sleep(int(STATUS_SERVER_CHECK_INTERVAL))
 
