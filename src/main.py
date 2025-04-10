@@ -425,7 +425,7 @@ def send_data_to_mqtt(content_data):
        Se o envio for sucesso altera o campo sended = True
     """
     print("send_data_to_mqtt -> content_data = ", content_data)
-    if  content_data == None:
+    if  content_data == "":
         print("Nenhum conteúdo para enviar ao MQTT!")
         return
 
