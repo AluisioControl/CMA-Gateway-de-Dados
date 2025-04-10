@@ -274,7 +274,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
             result_datapoints = session.execute(query_datapoints).scalars().first()
             xid_eqp = no_data if not result_datapoints else result_datapoints.xid_equip
 
-            print("xid_sensor: ", xid_sensor)
+            print("xid_sensor: ", xid_sensor_param)
             print("xid_eqp: ", xid_eqp)
 
             # Montando query datasources modbus
