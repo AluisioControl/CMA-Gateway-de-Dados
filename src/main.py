@@ -528,15 +528,6 @@ def send_data_to_mqtt(content_data):
     finally:
         session.close()
 
-    except SQLAlchemyError as e:
-        print("Send rabbimq entrou no except")
-        session.rollback()  # Desfaz transações em caso de erro
-        logger.error(f"Erro no banco de dados: {str(e)}")
-        return {"error": f"Erro no banco de dados: {str(e)}"}
-
-    finally:
-        session.close()
-
 
 def get_periods_eqp(table_class, protocol):
 
