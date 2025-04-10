@@ -137,6 +137,36 @@ def thr_get_system_info():
         else:
             print("\n=====  INFORMAÇÕES DA REDE   =====")
             print("Nenhuma conexão de rede com cabo detectada.\n")
+            payload = {
+                "sistema": {
+                        "memoria_ram": {
+                            "usada_gb": round(used_ram, 2),
+                            "total_gb": round(total_ram, 2),
+                            "percentual": ram_percent
+                        },
+                        "processador": {
+                            "uso_percentual": cpu_usage
+                        },
+                        "hd": {
+                            "usado_gb": round(used_disk, 2),
+                            "total_gb": round(total_disk, 2),
+                            "percentual": disk_percent
+                        },
+                        "tempo_funcionamento": {
+                            "horas": int(uptime_hours),
+                            "minutos": int(uptime_minutes)
+                        }, 
+                        "rede": {
+                            "interface": network_data["Interface"] if network_data["Interface"] else None,
+                            "ip": network_data["IP"] if network_data["IP"] else None,
+                            "mascara": network_data["Máscara"] if network_data["Máscara"] else None,
+                            "status": network_data["Status"] if network_data["Status"] else None,
+                            "velocidade": network_data["Velocidade"] if network_data["Velocidade"] else None
+                        }
+                    }
+                }
+
+        send_data_to_mqtt(payload)
         time.sleep(int(HEALTH_SYSTEM_CHECK_INTERVAL))
 
 
