@@ -21,7 +21,7 @@ load_dotenv()
 username = os.getenv("username")
 password = os.getenv("password")
 URL_BASE = os.getenv("URL_BASE")
-AUTH_URL = f"{URL_BASE}/Scada-LTS/api/auth/admin/admin"
+AUTH_URL = f"{URL_BASE}/Scada-LTS/api/auth/{username}/{password}"
 
 # Cache do cookie e tempo de expiração
 cookie_cache = {
@@ -173,8 +173,11 @@ def auth_ScadaLTS():
         c.close()
         response = buffer.getvalue().decode('utf-8')
         # print(response)
-        print("AUTH SCADA")
+        print("Atenticado no SCADA-LTS!")
+        return True 
     except ConnectionError as e:
+        return False
+        print(f"Erro ao tentar autenticar no SCADA-LTS: {e}")
         logger.error(f"Erro ao tentar autenticar no SCADA-LTS: {e}")
 
 
