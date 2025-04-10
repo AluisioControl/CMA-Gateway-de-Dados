@@ -69,7 +69,7 @@ class datasource_modbus_ip(Base):
     fabricante = Column(String, index=True)
     marca = Column(String, index=True)
     modelo = Column(String, index=True)
-    type = Column(String, index=True)
+    #type = Column(String, index=True)
     sap_id = Column(String, index=True)
     enabled = Column(Boolean, index=True)
     updatePeriodType = Column(String, index=True)
