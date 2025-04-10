@@ -173,7 +173,7 @@ def auth_ScadaLTS():
         c.close()
         response = buffer.getvalue().decode('utf-8')
         # print(response)
-        print("Atenticado no SCADA-LTS!")
+        #print("Atenticado no SCADA-LTS!")
         return True 
     except ConnectionError as e:
         return False

@@ -169,6 +169,7 @@ def thr_get_system_info():
                 }
         #print(payload)
         sys_info = json.dumps(payload, indent=4, ensure_ascii=False)
+        print(sys_info)
         send_data_to_mqtt(sys_info)
             
         time.sleep(int(HEALTH_SYSTEM_CHECK_INTERVAL))
