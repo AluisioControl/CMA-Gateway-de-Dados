@@ -336,6 +336,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
           
        
         if xid_sensor != no_data:
+            
             if get_json_data(xid_sensor) != None:
                 
                 extracted_value = get_json_data(xid_sensor)
@@ -717,9 +718,15 @@ def thr_check_server_online(host: str, port: int, servername: str):
         if conexao == "OFFLINE":
             logger.error(f"Servidor {servername} está offline!")
 
+        if conexao == "ONLINE":
+            STATUS_AUTH_SCADA = auth_ScadaLTS()
+    
         print("\n=====   CONEXÃO COM SCADA    =====")
         print("["+servername+"]:", conexao)
+        print("Status de autenticação com SCADA:", STATUS_AUTH_SCADA)
         print("\n")
+        
+            
         time.sleep(int(STATUS_SERVER_CHECK_INTERVAL))
 
 
