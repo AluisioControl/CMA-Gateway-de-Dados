@@ -267,6 +267,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
             
 
         elif protocol == "MODBUS":
+            print("Entrando no MODBUS\n")
             
            # Montando query datapoints modbus
             query_datapoints = select(datapoints_modbus_ip).where(datapoints_modbus_ip.xid_sensor == xid_sensor_param)
@@ -336,8 +337,9 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
           
        
         if xid_sensor != no_data:
-            
+            print("Entrando no if xid_sensor\n")
             if get_json_data(xid_sensor) != None:
+                print("Entrando no get_json_data(xid_sensor)\n")
                 
                 extracted_value = get_json_data(xid_sensor)
                 extracted_value = parse_json_response(extracted_value, 'value')
