@@ -167,7 +167,7 @@ def thr_get_system_info():
                         }
                     }
                 }
-        print(payload)
+        #print(payload)
         sys_info = json.dumps(payload, indent=4, ensure_ascii=False)
         send_data_to_mqtt(sys_info)
             
