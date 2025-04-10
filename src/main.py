@@ -306,7 +306,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
             host_datasource = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.host
             id_hdw_id = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.id_hdw
             name_hdw_name = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.name_hdw
-            type_sen_type = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.type_sen
+            type_sen_type = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.type
             model_sen_model = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.model_sen
             name_sen_name = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.name_sen
             id_man_id = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.id_man
@@ -377,14 +377,14 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                                 "register_type_id":register_type_id_reg,
                                 "register_type":register_type_reg,
                                 "sensor_type_id":sensor_type_id_reg,
-                                "sensor_type":sensor_type_reg,
+                                "sensor_type":sensor_type_reg,                                
+                                "register_tags": xid_dp_tags,
                                 "register_value": extracted_value,
-                                "tags_sensor": xid_dp_tags
                             }
                         ]
                     }
                     result = json.dumps(response_data, indent=4, ensure_ascii=False)
-                    print("result = ", result)
+                    #print("result = ", result)
                 except:
                     print("Erro ao gerar JSON com dados do xid_sensor", xid_sensor)
                     logger.error(f"Erro ao gerar JSON com dados do xid_sensor {xid_sensor}")

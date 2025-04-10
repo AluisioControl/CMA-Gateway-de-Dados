@@ -83,7 +83,7 @@ class datasource_modbus_ip(Base):
     updatePeriods = Column(Integer, index=True)
     id_hdw = Column(Integer, index=True)
     name_hdw = Column(String, index=True)
-    type_sen = Column(String, index=True)
+    type = Column(String, index=True)
     model_sen = Column(String, index=True)
     name_sen = Column(String, index=True)
     id_man = Column(Integer, index=True)
