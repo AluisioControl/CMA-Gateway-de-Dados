@@ -40,6 +40,8 @@ class cma_gateway(Base):
     regional = Column(String, index=True)
     host = Column(String, index=True)
     status = Column(Boolean, index=True)
+    id_gtw = Column(Integer, index=True)
+    id_sub = Column(Integer, index=True)
 
 
 
@@ -79,6 +81,12 @@ class datasource_modbus_ip(Base):
     retries = Column(Integer, index=True)
     timeout = Column(Integer, index=True)
     updatePeriods = Column(Integer, index=True)
+    id_hdw = Column(Integer, index=True)
+    name_hdw = Column(String, index=True)
+    type_sen = Column(String, index=True)
+    model_sen = Column(String, index=True)
+    name_sen = Column(String, index=True)
+    id_man = Column(Integer, index=True)
 
 
 # Eventos do SQLAlchemy para capturar alterações
@@ -113,6 +121,11 @@ class datapoints_modbus_ip(Base):
     nome = Column(String, index=True)
     tipo = Column(String, index=True)
     classificacao = Column(String, index=True)
+    phase = Column(String, index=True)
+    circuitBreakerManeuverType_reg_mod = Column(String, index=True)
+    bushingSide = Column(String, index=True)
+    id_reg_reg_mod = Column(Integer, index=True)
+    id_sen_reg_mod = Column(Integer, index=True)
 
 
 

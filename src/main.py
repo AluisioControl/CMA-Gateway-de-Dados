@@ -267,22 +267,16 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
             
 
         elif protocol == "MODBUS":
-            print("Entrando no MODBUS\n")
             
            # Montando query datapoints modbus
             query_datapoints = select(datapoints_modbus_ip).where(datapoints_modbus_ip.xid_sensor == xid_sensor_param)
             result_datapoints = session.execute(query_datapoints).scalars().first()
             xid_eqp = no_data if not result_datapoints else result_datapoints.xid_equip
 
-            print("xid_sensor: ", xid_sensor_param)
-            print("xid_eqp: ", xid_eqp)
-
             # Montando query datasources modbus
             query_datasources = select(datasource_modbus_ip).where(datasource_modbus_ip.xid_equip == xid_eqp)
             result_datasources = session.execute(query_datasources).scalars().first()
             xid_gtw = no_data if not result_datasources else result_datasources.xid_gateway
-
-            print("xid_gtw", xid_gtw)
 
             # Montando queries
             query_cma_gateway = select(cma_gateway).where(cma_gateway.xid_gateway == xid_gtw)
@@ -301,46 +295,26 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
             subestacao = no_data if not result_cma_gateway else result_cma_gateway.subestacao
             regional = no_data if not result_cma_gateway else result_cma_gateway.regional
             host_gateway = no_data if not result_cma_gateway else result_cma_gateway.host
-            #gtw_id = no_data if not result_cma_gateway else result_cma_gateway.id_gtw
-            #sub_id = no_data if not result_cma_gateway else result_cma_gateway.id_sub 
-
-            print("Informações do gateway")
-            print("gateway_id", gateway_id, "\n")
-            print("subestacao", subestacao, "\n")
-            print("host_gateway", host_gateway, "\n")
-            #print("gtw_id", gtw_id, "\n")
-            print("xid_gtw", xid_gtw, "\n")
-            #print("sub_id", sub_id, "\n")
+            gtw_id = no_data if not result_cma_gateway else result_cma_gateway.id_gtw
+            sub_id = no_data if not result_cma_gateway else result_cma_gateway.id_sub 
             
 
             # Coletando variáveis de interesse DATASOURCE MODBUS IP
             xid_equip = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.xid_equip
             fabricante = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.fabricante
-            #marca = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.marca
-            #modelo = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.modelo
-            #type_ = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.type
             sap_id = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.sap_id
-            #status_datasource = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.enabled
             host_datasource = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.host
-            '''
             id_hdw_id = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.id_hdw
             name_hdw_name = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.name_hdw
             type_sen_type = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.type_sen
             model_sen_model = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.model_sen
             name_sen_name = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.name_sen
             id_man_id = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.id_man
-            '''
+
             # Coletando variáveis de interesse DATAPOINTS MODBUS IP
             xid_sensor = no_data if not result_datapoints else result_datapoints.xid_sensor
             registrador = no_data if not result_datapoints else result_datapoints.offset
             nome = no_data if not result_datapoints else result_datapoints.nome
-            #tipo = no_data if not result_datapoints else result_datapoints.tipo
-            #classificacao = no_data if not result_datapoints else result_datapoints.classificacao
-            #status_datapoints = no_data if not result_datapoints else result_datapoints.enabled
-            #register_id_reg = no_data if not result_datapoints else result_datapoints.register_id
-            #register_name_reg = no_data if not result_datapoints else result_datapoints.register_name
-            #register_reg = no_data if not result_datapoints else result_datapoints.register
-            '''
             phase_reg= no_data if not result_datapoints else result_datapoints.phase
             circuitBreakerManeuverType_reg = no_data if not result_datapoints else result_datapoints.circuitBreakerManeuverType_reg_mod
             bushingSide_reg = no_data if not result_datapoints else result_datapoints.bushingSide
@@ -348,7 +322,6 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
             register_type_reg = no_data if not result_datapoints else result_datapoints.classificacao
             sensor_type_id_reg = no_data if not result_datapoints else result_datapoints.id_sen_reg_mod
             sensor_type_reg = no_data if not result_datapoints else result_datapoints.tipo
-            '''
           
        
         if xid_sensor != no_data:
@@ -369,26 +342,26 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                         "gateways": [  
                             {
                                 "timestamp":timestamp,
-                                #"gateway_id": gtw_id,
+                                "gateway_id": gtw_id,
                                 "gateway_name":gateway_id,
                                 "gateway_ip":host_gateway,
-                                #"SE_id":sub_id,
+                                "SE_id":sub_id,
                                 "SE":subestacao,
                                 "SE_Region":regional
                             }
                         ],
                         "sensors": [
                             {
-                                #"hardware_id": id_hdw_id,
-                                #"hardware_name": name_hdw_name,
+                                "hardware_id": id_hdw_id,
+                                "hardware_name": name_hdw_name,
                                 "sap_id": sap_id,
-                                #"type": type_sen_type,
-                                #"model": model_sen_model,
+                                "type": type_sen_type,
+                                "model": model_sen_model,
                                 "sensor_id":xid_equip,
-                                #"sensor_name": name_sen_name,
+                                "sensor_name": name_sen_name,
                                 "sensor_ip":host_datasource,
                                 "sensor_protocol": protocol,
-                                #"manufacturer_id": id_man_id,
+                                "manufacturer_id": id_man_id,
                                 "manufacturer_name": fabricante,
                                 "sensor_tags": xid_eqp_tags
                             }
@@ -398,7 +371,6 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                                 "register_id": xid_sensor,
                                 "register_name": nome,
                                 "register": registrador,
-                                '''
                                 "phase":phase_reg,
                                 "circuitBreakerManeuverType":circuitBreakerManeuverType_reg,
                                 "bushingSide":bushingSide_reg,
@@ -406,7 +378,6 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                                 "register_type":register_type_reg,
                                 "sensor_type_id":sensor_type_id_reg,
                                 "sensor_type":sensor_type_reg,
-                                '''
                                 "register_value": extracted_value,
                                 "tags_sensor": xid_dp_tags
                             }
