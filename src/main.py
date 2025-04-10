@@ -274,10 +274,14 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
             result_datapoints = session.execute(query_datapoints).scalars().first()
             xid_eqp = no_data if not result_datapoints else result_datapoints.xid_equip
 
+            print("xid_eqp: ", xid_eqp, "\n")
+
             # Montando query datasources modbus
             query_datasources = select(datasource_modbus_ip).where(datasource_modbus_ip.xid_equip == xid_eqp)
             result_datasources = session.execute(query_datasources).scalars().first()
             xid_gtw = no_data if not result_datasources else result_datasources.xid_gateway
+
+            print("xid_gtw", xid_gtw, "\n")
 
             # Montando queries
             query_cma_gateway = select(cma_gateway).where(cma_gateway.xid_gateway == xid_gtw)
@@ -298,7 +302,14 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
             regional = no_data if not result_cma_gateway else result_cma_gateway.regional
             host_gateway = no_data if not result_cma_gateway else result_cma_gateway.host
             gtw_id = no_data if not result_cma_gateway else result_cma_gateway.id_gtw
-            sub_id = no_data if not result_cma_gateway else result_cma_gateway.id_sub            
+            sub_id = no_data if not result_cma_gateway else result_cma_gateway.id_sub 
+
+            print("gateway_id", gateway_id, "\n")
+            print("subestacao", subestacao, "\n")
+            print("host_gateway", host_gateway, "\n")
+            print("gtw_id", gtw_id, "\n")
+            print("xid_gtw", xid_gtw, "\n")
+            print("sub_id", sub_id, "\n")
             
 
             # Coletando variáveis de interesse DATASOURCE MODBUS IP
@@ -412,6 +423,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
 
     finally:
         session.close()
+
 
 def send_data_to_mqtt(content_data):
 
@@ -540,8 +552,6 @@ def get_periods_eqp(table_class, protocol):
     finally:
         session.close()
             
-
-    
 
 def convert_to_seconds(time_value, unit):
 
