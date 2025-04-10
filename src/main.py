@@ -134,9 +134,6 @@ def thr_get_system_info():
             print(f"Máscara: {network_data['Máscara']}")
             print(f"Status: {network_data['Status']}")
             print(f"Velocidade: {network_data['Velocidade']}\n")
-        else:
-            print("\n=====  INFORMAÇÕES DA REDE   =====")
-            print("Nenhuma conexão de rede com cabo detectada.\n")
             payload = {
                 "sistema": {
                         "memoria_ram": {
@@ -168,6 +165,10 @@ def thr_get_system_info():
             print(payload)
             sys_info = json.dumps(payload, indent=4, ensure_ascii=False)
             send_data_to_mqtt(sys_info)
+        else:
+            print("\n=====  INFORMAÇÕES DA REDE   =====")
+            print("Nenhuma conexão de rede com cabo detectada.\n")
+            
         time.sleep(int(HEALTH_SYSTEM_CHECK_INTERVAL))
 
 
