@@ -466,7 +466,6 @@ def send_data_to_mqtt(content_data):
 
     session = SessionLocal()
     try:
-        #print("Entrando no try send rabbitmq")
         send_success = False
         # 1 - Armazena o JSON no campo content_data
         # e atribui False no campo sended
@@ -494,7 +493,7 @@ def send_data_to_mqtt(content_data):
 
                 if check_rabbitmq_connection(): # Verifica se o RabbitMg está online antes de enviar
                     print("Servidor RabbitMQ está acessível!")
-                    status = send_rabbitmq("amq.topic", "Gateway", "sensor", content_data)
+                    status = send_rabbitmq(content_data)
                     if status:
                         send_success = True
                         break
@@ -520,6 +519,14 @@ def send_data_to_mqtt(content_data):
 
             else:
                 print("Falha ao enviar mensagem para o MQTT. A mensagem foi guardada em fila e será enviada posteriormente!")
+
+    except SQLAlchemyError as e:
+        session.rollback()  # Desfaz transações em caso de erro
+        logger.error(f"Erro no banco de dados: {str(e)}")
+        return {"error": f"Erro no banco de dados: {str(e)}"}
+
+    finally:
+        session.close()
 
     except SQLAlchemyError as e:
         print("Send rabbimq entrou no except")
