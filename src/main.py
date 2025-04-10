@@ -748,7 +748,7 @@ def thr_check_server_online(host: str, port: int, servername: str):
     
         print("\n=====   CONEXÃO COM SCADA    =====")
         print("["+servername+"]:", conexao)
-        #print("Status de autenticação com SCADA:", STATUS_AUTH_SCADA)
+        #print("Status de autenticação com SCADA:", STATUS_AUTH_SCADA) 
         #print("\n")       
             
         time.sleep(int(STATUS_SERVER_CHECK_INTERVAL))
