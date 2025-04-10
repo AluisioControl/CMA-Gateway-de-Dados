@@ -9,49 +9,19 @@
 import pika
 import configparser
 from logger import *
+from dotenv import load_dotenv
 
-CONFIG_FILE = "config.ini"
+# Carregando as variáveis de ambiente do arquivo .env
+load_dotenv()
 
-def load_rabbitmq_config():
-
-    """
-    Carrega as variáveis de configuração do RabbitMQ do arquivo config.ini
-
-    Returns:
-        Um dicionário com as variáveis de configuração do RabbitMQ
-    """
-
-    config = configparser.ConfigParser()
-    config.read(CONFIG_FILE)
-    
-    rabbitmq_vars = {
-        "host": config.get("config_rabbitmq", "host", fallback=None),
-        "port": config.get("config_rabbitmq", "port", fallback=None),
-        "username": config.get("config_rabbitmq", "username", fallback=None),
-        "password": config.get("config_rabbitmq", "password", fallback=None),
-        "caminho": config.get("config_rabbitmq", "caminho", fallback=None),
-        "topico": config.get("config_rabbitmq", "topico", fallback=None),
-        "chave": config.get("config_rabbitmq", "chave", fallback=None)
-    }
-    
-    return rabbitmq_vars
-
-
-def get_rabbitmq_var(var_name):
-
-    """
-    Retorna o valor de uma variável de configuração do RabbitMQ.
-
-    Args:
-        var_name (str): O nome da variável de configuração do RabbitMQ.
-
-    Returns:
-        str: O valor da variável de configuração do RabbitMQ se existir, None caso contrário.
-    """
-
-    config_vars = load_rabbitmq_config()
-    return config_vars.get(var_name, None)
-
+# Variáveis de configuração do rabbitmq
+RABBIT_HOST=os.getenv("RABBIT_HOST")
+RABBIT_PORT=os.getenv("RABBIT_PORT")
+RABBIT_USER=os.getenv("RABBIT_USER")
+RABBIT_PASS=os.getenv("RABBIT_PASS")
+RABBIT_CAMINHO=os.getenv("RABBIT_CAMINHO")
+RABBIT_TOPICO=os.getenv("RABBIT_TOPICO")
+RABBIT_CHAVE=os.getenv("RABBIT_CHAVE")
 
 
 def check_rabbitmq_connection():
@@ -67,18 +37,13 @@ def check_rabbitmq_connection():
         bool: True se a conexão foi bem-sucedida, False caso contrário.
     """
 
-    username = 'guest' #get_rabbitmq_var("username")
-    password = 'guest' #get_rabbitmq_var("password")
-    host = "localhost" #get_rabbitmq_var("host")
-    port = "5672" #get_rabbitmq_var("port")
-
     try:
         # Configurando as credenciais
-        credentials = pika.PlainCredentials(username, password)
+        credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASS)
 
         # Configurando os parâmetros de conexão
         connection_params = pika.ConnectionParameters(
-            host=host, port=port, credentials=credentials)
+            host=RABBIT_HOST, port=RABBIT_PORT, credentials=credentials)
 
         # Tentando estabelecer a conexão
         connection = pika.BlockingConnection(connection_params)
@@ -95,19 +60,13 @@ def check_rabbitmq_connection():
 
 
 
-def send_rabbitmq(caminho=str, topico=str, chave=str, payload=str):
+def send_rabbitmq(payload=str):
 
     """
     Envia uma mensagem ao RabbitMQ.
 
-    Parameters
+    Parameter
     ----------
-    caminho : str
-        Nome da exchange.
-    topico : str
-        Nome da queue.
-    chave : str
-        Chave de routing.
     payload : str
         Conteúdo da mensagem.
 
@@ -119,10 +78,10 @@ def send_rabbitmq(caminho=str, topico=str, chave=str, payload=str):
     try:
         connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
         channel = connection.channel()
-        channel.queue_declare(queue=topico)
+        channel.queue_declare(queue=RABBIT_TOPICO)
 
         channel.basic_publish(
-            exchange=caminho, routing_key=chave, body=payload)
+            exchange=RABBIT_CAMINHO, routing_key=RABBIT_CHAVE, body=payload)
 
         connection.close()
         return True
