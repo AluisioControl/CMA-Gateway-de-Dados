@@ -66,10 +66,10 @@ def check_rabbitmq_connection():
         bool: True se a conexão foi bem-sucedida, False caso contrário.
     """
 
-    username = get_rabbitmq_var("username")
-    password = get_rabbitmq_var("password")
-    host = get_rabbitmq_var("host")
-    port = get_rabbitmq_var("port")
+    username = 'guest' #get_rabbitmq_var("username")
+    password = 'guest' #get_rabbitmq_var("password")
+    host = "localhost" #get_rabbitmq_var("host")
+    port = "5672" #get_rabbitmq_var("port")
 
     try:
         # Configurando as credenciais
