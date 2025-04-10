@@ -274,6 +274,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
             result_datapoints = session.execute(query_datapoints).scalars().first()
             xid_eqp = no_data if not result_datapoints else result_datapoints.xid_equip
 
+            print("xid_sensor: ", xid_sensor, "\n")
             print("xid_eqp: ", xid_eqp, "\n")
 
             # Montando query datasources modbus
@@ -286,8 +287,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
             # Montando queries
             query_cma_gateway = select(cma_gateway).where(cma_gateway.xid_gateway == xid_gtw)
             query_datasource_modbus_ip = select(datasource_modbus_ip).where(datasource_modbus_ip.xid_equip == xid_eqp)
-            query_eqp_tags = select(eqp_tags).where(
-            eqp_tags.xid_equip == xid_eqp)
+            query_eqp_tags = select(eqp_tags).where(eqp_tags.xid_equip == xid_eqp)
             query_dp_tags = select(dp_tags).where(dp_tags.xid_sensor == xid_sensor_param)
 
             # Resultado das queries
