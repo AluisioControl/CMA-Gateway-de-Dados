@@ -134,44 +134,44 @@ def thr_get_system_info():
             print(f"Máscara: {network_data['Máscara']}")
             print(f"Status: {network_data['Status']}")
             print(f"Velocidade: {network_data['Velocidade']}\n")
-            
         else:
             print("\n=====  INFORMAÇÕES DA REDE   =====")
             print("Nenhuma conexão de rede com cabo detectada.\n")
-        
+
+
         payload = {
-                "sistema": {
-                        "memoria_ram": {
-                            "usada_gb": round(used_ram, 2),
-                            "total_gb": round(total_ram, 2),
-                            "percentual": ram_percent
-                        },
-                        "processador": {
-                            "uso_percentual": cpu_usage
-                        },
-                        "hd": {
-                            "usado_gb": round(used_disk, 2),
-                            "total_gb": round(total_disk, 2),
-                            "percentual": disk_percent
-                        },
-                        "tempo_funcionamento": {
-                            "horas": int(uptime_hours),
-                            "minutos": int(uptime_minutes)
-                        }, 
-                        "rede": {
-                            "interface": network_data["Interface"] if network_data["Interface"] else None,
-                            "ip": network_data["IP"] if network_data["IP"] else None,
-                            "mascara": network_data["Máscara"] if network_data["Máscara"] else None,
-                            "status": network_data["Status"] if network_data["Status"] else None,
-                            "velocidade": network_data["Velocidade"] if network_data["Velocidade"] else None
-                        }
-                    }
+        "sistema": {
+                "memoria_ram": {
+                    "usada_gb": round(used_ram, 2),
+                    "total_gb": round(total_ram, 2),
+                    "percentual": ram_percent
+                },
+                "processador": {
+                    "uso_percentual": cpu_usage
+                },
+                "hd": {
+                    "usado_gb": round(used_disk, 2),
+                    "total_gb": round(total_disk, 2),
+                    "percentual": disk_percent
+                },
+                "tempo_funcionamento": {
+                    "horas": int(uptime_hours),
+                    "minutos": int(uptime_minutes)
+                }, 
+                "rede": {
+                    "interface": network_data["Interface"] if network_data["Interface"] else None,
+                    "ip": network_data["IP"] if network_data["IP"] else None,
+                    "mascara": network_data["Máscara"] if network_data["Máscara"] else None,
+                    "status": network_data["Status"] if network_data["Status"] else None,
+                    "velocidade": network_data["Velocidade"] if network_data["Velocidade"] else None
                 }
-        #print(payload)
-        sys_info = json.dumps(payload, indent=4, ensure_ascii=False)
-        print(sys_info)
-        send_data_to_mqtt(sys_info)
-            
+                } #TODO: INCLUIR STATUS DO SCADA-LTS
+        }
+        payload = json.dumps(payload, indent=4, ensure_ascii=False)
+        send_data_to_mqtt(payload)
+        logger.info("Enviando payload health_system_check para RabbitMQ...")
+        #syslog.syslog("Enviando payload health_system_check para RabbitMQ...")
+        syslog.syslog(syslog.LOG_ERR, "Enviando payload health_system_check para RabbitMQ...")
         time.sleep(int(HEALTH_SYSTEM_CHECK_INTERVAL))
 
 
@@ -360,12 +360,12 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
           
        
         if xid_sensor != no_data:
-            #print("Entrando no if xid_sensor\n")
+            print("Entrando no if xid_sensor\n")
             if get_json_data(xid_sensor) != None:
-                #print("Entrando no get_json_data(xid_sensor)\n")
+                print("Entrando no get_json_data(xid_sensor)\n")
                 
                 extracted_value = get_json_data(xid_sensor)
-                extracted_value = parse_json_response(extracted_value, 'value')
+                extracted_value = parse_json_response(extracted_value, 'value') #TODO: NÃO ENVIAR DE value for null - Aluisio vai ver com Leonardo
                 tags_equipamento = no_data if not result_eqp_tags else result_eqp_tags.xid_equip
                 xid_eqp_tags = fetch_name_value_pairs(eqp_tags, 'xid_equip', tags_equipamento)
                 tag_sensor = no_data if not result_dp_tags else result_dp_tags.xid_sensor
@@ -653,7 +653,7 @@ def execute_sensors_modbus(xid_modbus, interval, stop_event):
     returns:
         None
     """
-    #print("entrou no execute_sensors_modbus...")
+    print("entrou no execute_sensors_modbus...")
     while not stop_event.is_set():
         for _ in range(int(interval * 10)):  # delay de 0.1s
             if stop_event.is_set():
@@ -669,6 +669,7 @@ def execute_sensors_modbus(xid_modbus, interval, stop_event):
             for xid_sensor_modbus in list_xid_sensor_modbus:
                 print("Enviando para mqtt dados do sensor modbus: ", xid_sensor_modbus)
                 payload = process_json_datapoints(xid_sensor_modbus, "MODBUS")
+                print("PAYLOAD A SER ENVIADO PARA MQTT=", payload)
                 send_data_to_mqtt(payload)
 
         else:
@@ -747,8 +748,9 @@ def thr_check_server_online(host: str, port: int, servername: str):
     
         print("\n=====   CONEXÃO COM SCADA    =====")
         print("["+servername+"]:", conexao)
-        #print("Status de autenticação com SCADA:", STATUS_AUTH_SCADA) 
-        #print("\n")       
+        print("Status de autenticação com SCADA:", STATUS_AUTH_SCADA)
+        print("\n")
+        
             
         time.sleep(int(STATUS_SERVER_CHECK_INTERVAL))
 
@@ -824,11 +826,12 @@ def start_main_threads():
         active_threads["process_cma"] = process_cma  # Armazena a referência da thread
         process_cma.start()
     '''
+    '''
     if "process_scada" not in active_threads:
         process_scada = threading.Thread(target=thr_check_server_online, args=("127.0.0.1", 8080, "SCADA-LTS"), daemon=True)
         active_threads["process_scada"] = process_scada  # Armazena a referência da thread
         process_scada.start()
-
+    '''
     """Inicia os processos para monitorar o sistema (health check)"""
     if "health_checker" not in active_threads:
         health_checker = threading.Thread(target=thr_get_system_info, args=(), daemon = True)
