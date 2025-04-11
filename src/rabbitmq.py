@@ -7,10 +7,11 @@
 # TODOS OS DIREITOS RESERVADOS A CONTROL ENGENHARIA
 # #############################################################
 import pika
-import configparser
-from logger import *
-from dotenv import load_dotenv
 
+
+from dotenv import load_dotenv
+import os
+from logger import *
 # Carregando as variáveis de ambiente do arquivo .env
 load_dotenv()
 
@@ -50,12 +51,13 @@ def check_rabbitmq_connection():
 
         # Se chegou aqui, a conexão foi bem-sucedida
         print("Conexão com RabbitMQ foi bem-sucedida!")
-        connection.close()  # Fechando a conexão
-        return True
+        #connection.close()  # Fechando a conexão
+        return connection
 
     except pika.exceptions.AMQPConnectionError as e:
-        print(f"Erro ao conectar ao RabbitMQ: {e}")
-        logger.error(f"Erro ao conectar ao RabbitMQ: {e}")
+        print(f"Erro ao checar conexão com RabbitMQ: {e}")
+        logger.error(f"Erro ao checar conexão como RabbitMQ: {e}")
+        
         return False
 
 
@@ -74,9 +76,13 @@ def send_rabbitmq(payload=str):
     -------
         bool: True se a mensagem foi enviada com sucesso, False caso contrário.
     """
-
+    
     try:
-        connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASS)
+        # Configurando os parâmetros de conexão
+        connection_params = pika.ConnectionParameters(
+            host=RABBIT_HOST, port=RABBIT_PORT, credentials=credentials)
+        connection = pika.BlockingConnection(connection_params)
         channel = connection.channel()
         channel.queue_declare(queue=RABBIT_TOPICO)
 
@@ -87,6 +93,6 @@ def send_rabbitmq(payload=str):
         return True
 
     except pika.exceptions.AMQPConnectionError as e:
-        print(f"Erro ao conectar ao RabbitMQ: {e}")
-        logger.error(f"Erro ao conectar ao RabbitMQ: {e}")
+        print(f"Erro ao enviar dados para ao RabbitMQ: {e}")
+        logger.error(f"Erro ao enviar dados para ao RabbitMQ: {e}")
         return False
