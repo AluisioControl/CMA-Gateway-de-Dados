@@ -723,18 +723,14 @@ def thr_check_server_online(host: str, port: int, servername: str):
     print(f"Iniciando verificação de status do servidor {host}:{port} ...")
     while True:
         try:
-            global STATUS_CMA
+            
             global STATUS_SCADA
             global service_status
             with socket.create_connection((host, port), timeout=5):
-                if port == 5000:
-                    STATUS_CMA = "ONLINE"
                 if port == 8080:
                     STATUS_SCADA = "ONLINE"
                 service_status["is_running"] = True
         except (socket.timeout, ConnectionRefusedError):
-            if port == 5000:
-                STATUS_CMA = "OFFLINE"
             if port == 8080:
                 STATUS_SCADA = "OFFLINE"
             service_status["is_running"] = False
@@ -750,8 +746,17 @@ def thr_check_server_online(host: str, port: int, servername: str):
         print("["+servername+"]:", conexao)
         print("Status de autenticação com SCADA:", STATUS_AUTH_SCADA)
         print("\n")
-        
-            
+
+        payload = {
+            "scada_lts": {
+                "status_conexao": STATUS_SCADA,
+                "status_autenticacao": STATUS_AUTH_SCADA
+            }
+        }
+
+        payload = json.dumps(payload, indent=4, ensure_ascii=False)
+        send_data_to_mqtt(payload)
+                    
         time.sleep(int(STATUS_SERVER_CHECK_INTERVAL))
 
 
