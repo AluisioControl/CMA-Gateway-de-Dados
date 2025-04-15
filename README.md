@@ -5,13 +5,13 @@ Repositório pra projeto com Instituto Atlântico e ISA CTEEP
 
 ## Para instalar dependências:  
 ```bash
-  sudo apt-get install -y crudini
+  
   pip3 install -r requirements.txt
 ```
 
 ## Para rodar o configurador, abra o terminal no mesmo diretório do script e digite:
 ```bash
-    ./config.sh
+    ./configurador.sh
 ```
 
 ## Para rodar as rotinas de testes digite no diretório 'tests':
@@ -22,5 +22,5 @@ Repositório pra projeto com Instituto Atlântico e ISA CTEEP
 ## Para acompanhar o log de eventos (erro ou warning):
 ```bash
 - No Windows: C:\middleware_log.log
-- No linux: logs/middleware_log.log
+- No linux: logs/middleware_log.log ou execute ./syslog_verify dentro da pasta 'scripts'
 ``` 
