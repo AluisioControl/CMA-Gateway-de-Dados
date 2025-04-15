@@ -1,1 +1,1 @@
-tail -f /var/log/syslog | grep GATEWAY-CMA
+tail -f /var/log/syslog | grep GATEWAY

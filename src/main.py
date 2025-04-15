@@ -37,8 +37,7 @@ STATUS_SERVER_CHECK_INTERVAL = os.getenv("STATUS_SERVER_CHECK_INTERVAL")
 
 # Variáveis da aplicação
 stop_event = threading.Event()
-STATUS_CMA   = ""
-STATUS_SCADA = ""
+STATUS_SCADA = "INICIANDO"
 service_status = {"is_running": False}
 
 # Variável global para controle das threads
@@ -144,19 +143,18 @@ def thr_get_system_info():
                 "memoria_ram": {
                     "usada_gb": round(used_ram, 2),
                     "total_gb": round(total_ram, 2),
-                    "percentual": ram_percent
+                    "percentual_uso": f"{ram_percent}%" if ram_percent is not None else ram_percent
                 },
                 "processador": {
-                    "uso_percentual": cpu_usage
+                    "percentual_uso": f"{cpu_usage}%" if cpu_usage is not None else cpu_usage
                 },
                 "hd": {
                     "usado_gb": round(used_disk, 2),
                     "total_gb": round(total_disk, 2),
-                    "percentual": disk_percent
+                    "percentual_uso": f"{disk_percent}%"
                 },
                 "tempo_funcionamento": {
-                    "horas": int(uptime_hours),
-                    "minutos": int(uptime_minutes)
+                    "tempo_h_min": f"{int(uptime_hours)}:{int(uptime_minutes)}"
                 }, 
                 "rede": {
                     "interface": network_data["Interface"] if network_data["Interface"] else None,
@@ -165,7 +163,7 @@ def thr_get_system_info():
                     "status": network_data["Status"] if network_data["Status"] else None,
                     "velocidade": network_data["Velocidade"] if network_data["Velocidade"] else None
                 }
-                } #TODO: INCLUIR STATUS DO SCADA-LTS
+            }
         }
         payload = json.dumps(payload, indent=4, ensure_ascii=False)
         send_data_to_mqtt(payload)
@@ -372,6 +370,19 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                 xid_dp_tags = fetch_name_value_pairs(dp_tags, 'xid_sensor', tag_sensor)
                 timestamp = datetime.now().timestamp()
 
+                if extracted_value == null:
+                    print(f"Valor de xid_sensor: {xid_sensor} = null. Um report será enviado.")
+                    logger.warning(f"Valor de xid_sensor: {xid_sensor} = null. Um report será enviado.")
+                    payload = {
+                        "xid_erro": {
+                            "xid_sensor_null": xid_sensor
+                        }
+                    }
+
+                    payload = json.dumps(payload, indent=4, ensure_ascii=False)
+                    send_data_to_mqtt(payload)
+                    return
+                    
                 try:
                     response_data = {
                         "gateways": [  
@@ -717,24 +728,20 @@ def thr_check_server_online(host: str, port: int, servername: str):
     Verifica se o servidor está online ou offline.
 
     Verifica se o servidor especificado pela variável `host` e `port` está online ou offline.
-    Se o servidor estiver online, muda o valor da variável STATUS_CMA ou STATUS_SCADA para "ONLINE".
-    Se o servidor estiver offline, muda o valor da variável STATUS_CMA ou STATUS_SCADA para "OFFLINE".
+    Se o servidor estiver online, muda o valor da variável STATUS_SCADA para "ONLINE".
+    Se o servidor estiver offline, muda o valor da variável  STATUS_SCADA para "OFFLINE".
     """
     print(f"Iniciando verificação de status do servidor {host}:{port} ...")
     while True:
         try:
-            global STATUS_CMA
+            
             global STATUS_SCADA
             global service_status
             with socket.create_connection((host, port), timeout=5):
-                if port == 5000:
-                    STATUS_CMA = "ONLINE"
                 if port == 8080:
                     STATUS_SCADA = "ONLINE"
                 service_status["is_running"] = True
         except (socket.timeout, ConnectionRefusedError):
-            if port == 5000:
-                STATUS_CMA = "OFFLINE"
             if port == 8080:
                 STATUS_SCADA = "OFFLINE"
             service_status["is_running"] = False
@@ -750,8 +757,20 @@ def thr_check_server_online(host: str, port: int, servername: str):
         print("["+servername+"]:", conexao)
         print("Status de autenticação com SCADA:", STATUS_AUTH_SCADA)
         print("\n")
-        
-            
+
+        payload = {
+            "scada_lts": {
+                "status_conexao": STATUS_SCADA,
+                "status_autenticacao": STATUS_AUTH_SCADA
+            }
+        }
+
+        payload = json.dumps(payload, indent=4, ensure_ascii=False)
+        send_data_to_mqtt(payload)
+        logger.info("Enviando payload status de conexão SACADA-LTS para RabbitMQ...")
+        #syslog.syslog("Enviando payload status de conexão SACADA-LTS para RabbitMQ...")
+        syslog.syslog(syslog.LOG_ERR, "Enviando payload status de conexão SACADA-LTS para RabbitMQ...")
+                    
         time.sleep(int(STATUS_SERVER_CHECK_INTERVAL))
 
 
@@ -820,18 +839,12 @@ def thr_start_routines_sensor(datasource, protocol):
 # =======================================================================
 def start_main_threads():
     """Inicia os processos para checar servidores.""" 
-    '''
-    if "process_cma" not in active_threads:
-        process_cma = threading.Thread(target=thr_check_server_online, args=("127.0.0.1", 5000, "CMA"), daemon=True)
-        active_threads["process_cma"] = process_cma  # Armazena a referência da thread
-        process_cma.start()
-    '''
-    '''
+
     if "process_scada" not in active_threads:
         process_scada = threading.Thread(target=thr_check_server_online, args=("127.0.0.1", 8080, "SCADA-LTS"), daemon=True)
         active_threads["process_scada"] = process_scada  # Armazena a referência da thread
         process_scada.start()
-    '''
+    
     """Inicia os processos para monitorar o sistema (health check)"""
     if "health_checker" not in active_threads:
         health_checker = threading.Thread(target=thr_get_system_info, args=(), daemon = True)
