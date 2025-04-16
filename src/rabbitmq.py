@@ -76,7 +76,9 @@ def send_rabbitmq(payload=str):
     -------
         bool: True se a mensagem foi enviada com sucesso, False caso contrário.
     """
-    
+    if payload == none:
+        print("Nenhum conteúdo para enviar ao RabbitMQ!")
+        return False    
     try:
         credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASS)
         # Configurando os parâmetros de conexão
