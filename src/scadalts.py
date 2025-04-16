@@ -135,7 +135,7 @@ def get_json_data(xid_sensor):
     else:
         print("Falha ao buscar os dados do xid_sensor:", xid_sensor)
         logger.error(f"Falha ao buscar os dados do xid_sensor: {xid_sensor}")
-        return None
+        return "error"
 
 
 

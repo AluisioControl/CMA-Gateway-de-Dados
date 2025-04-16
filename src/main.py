@@ -224,8 +224,10 @@ def parse_json_response(json_response, key):
         if key in json_response:
             return json_response[key]
         else:
+            logger.error(f"Chave '{key}' não encontrada no JSON.")
             return f"Chave '{key}' não encontrada no JSON."
     except Exception as e:
+        logger.error(f"Erro ao processar o JSON: {e}")
         return f"Erro ao processar o JSON: {e}"
 
 
@@ -355,32 +357,20 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
           
        
         if xid_sensor != no_data:
-            print("Entrando no if xid_sensor\n")
-            if get_json_data(xid_sensor) != None:
-                print("Entrando no get_json_data(xid_sensor)\n")
-                
-                extracted_value = get_json_data(xid_sensor)
-                extracted_value = parse_json_response(extracted_value, 'value') #TODO: NÃO ENVIAR DE value for null - Aluisio vai ver com Leonardo
+            #print("Entrando no if xid_sensor\n")
+            extracted_value = get_json_data(xid_sensor) #retorne o payload da api para extrair o value ou retorna none            
+
+            if extracted_value != None or extracted_value != null:
+                #print("Entrando no get_json_data(xid_sensor)\n")    
+                extracted_value = parse_json_response(extracted_value, 'value')      
                 tags_equipamento = no_data if not result_eqp_tags else result_eqp_tags.xid_equip
                 xid_eqp_tags = fetch_name_value_pairs(eqp_tags, 'xid_equip', tags_equipamento)
                 tag_sensor = no_data if not result_dp_tags else result_dp_tags.xid_sensor
                 xid_dp_tags = fetch_name_value_pairs(dp_tags, 'xid_sensor', tag_sensor)
                 timestamp = datetime.now().timestamp()
-                result=None
-                if extracted_value == None or extracted_value == null:
-                    print(f"Valor de xid_sensor: {xid_sensor} = None. Um report será enviado.")
-                    logger.warning(f"Valor de xid_sensor: {xid_sensor} = None. Um report será enviado.")
-                    payload = {
-                        "xid_erro": {
-                            "xid_sensor_none": xid_sensor
-                        }
-                    }
-
-                    payload = json.dumps(payload, indent=4, ensure_ascii=False)
-                    send_data_to_mqtt(payload)
-                else:
-                    
-                    try:
+                #result=None #Se result é atribuído como None após primeiro resultado válido como os demais procederão corretamente?
+ 
+                try:
                         response_data = {
                             "gateways": [  
                                 {
@@ -427,23 +417,61 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                             ]
                         }
                         result = json.dumps(response_data, indent=4, ensure_ascii=False)
+                        return result
                         #print("result = ", result)
-                    except:
+                except:
                         print("Erro ao gerar JSON com dados do xid_sensor", xid_sensor)
                         logger.error(f"Erro ao gerar JSON com dados do xid_sensor {xid_sensor}")
-                        
-                return result
+                        payload = {
+                        "xid_erro": {
+                            "xid_sensor": "Json Error"
+                        }
+                    }
 
+                result = json.dumps(payload, indent=4, ensure_ascii=False)
+                return result
+                
+            elif extracted_value == None or extracted_value == null:
+                    print(f"Valor de xid_sensor: {xid_sensor} = None. Um report será enviado.")
+                    logger.warning(f"Valor de xid_sensor: {xid_sensor} = None. Um report será enviado.")
+                    payload = {
+                        "xid_erro": {
+                            "xid_sensor_none": xid_sensor
+                        }
+                    }
+
+                    result = json.dumps(payload, indent=4, ensure_ascii=False)
+                    return result
+
+                    #send_data_to_mqtt(payload)   #send_data_to_mqtt(payload) é chamado logo após obter resultado dessa função               
+                    #return result
             else:
                 print("Erro ao obter dados do xid_sensor", xid_sensor, "no Sacada-LTS!")
                 logger.error(f"Erro ao obter dados do xid_sensor {xid_sensor} no Sacada-LTS!")
+                payload = {
+                        "xid_erro": {
+                            "xid_sensor": xid_sensor,
+                            "descricao": "Json Error"
+                        }
+                    }
+
+                result = json.dumps(payload, indent=4, ensure_ascii=False)
+                return result
 
     except Exception as e:
         logger.error(f"Erro ao gerar um Payload (JSON) de múltiplas Tabelas do banco de dados: {e}")
+        payload = {
+                        "xid_erro": {
+                            "xid_sensor": xid_sensor,
+                            "descricao": "Json Error"
+                        }
+                    }
+
+        result = json.dumps(payload, indent=4, ensure_ascii=False)
+        return result
 
     finally:
         session.close()
-
 
 def send_data_to_mqtt(content_data):
 
