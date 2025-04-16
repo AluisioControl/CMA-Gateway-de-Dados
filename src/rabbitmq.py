@@ -76,7 +76,7 @@ def send_rabbitmq(payload=str):
     -------
         bool: True se a mensagem foi enviada com sucesso, False caso contrário.
     """
-    if payload == none:
+    if payload == None:
         print("Nenhum conteúdo para enviar ao RabbitMQ!")
         return False    
     try:
