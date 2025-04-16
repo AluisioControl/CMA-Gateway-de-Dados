@@ -158,10 +158,10 @@ def thr_get_system_info():
                 }, 
                 "rede": {
                     "interface": network_data["Interface"] if network_data else None,
-                    "ip": network_data["IP"] if network_data["IP"] else None,
-                    "mascara": network_data["Máscara"] if network_data["Máscara"] else None,
-                    "status": network_data["Status"] if network_data["Status"] else None,
-                    "velocidade": network_data["Velocidade"] if network_data["Velocidade"] else None
+                    "ip": network_data["IP"] if network_data else None,
+                    "mascara": network_data["Máscara"] if network_data else None,
+                    "status": network_data["Status"] if network_data else None,
+                    "velocidade": network_data["Velocidade"] if network_data  else None
                 }
             }
         }
