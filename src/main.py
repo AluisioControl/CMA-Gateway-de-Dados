@@ -157,7 +157,7 @@ def thr_get_system_info():
                     "tempo_h_min": f"{int(uptime_hours)}:{int(uptime_minutes)}"
                 }, 
                 "rede": {
-                    "interface": network_data["Interface"] if network_data["Interface"] else None,
+                    "interface": network_data["Interface"] if network_data else None,
                     "ip": network_data["IP"] if network_data["IP"] else None,
                     "mascara": network_data["Máscara"] if network_data["Máscara"] else None,
                     "status": network_data["Status"] if network_data["Status"] else None,
@@ -167,9 +167,6 @@ def thr_get_system_info():
         }
         payload = json.dumps(payload, indent=4, ensure_ascii=False)
         send_data_to_mqtt(payload)
-        logger.info("Enviando payload health_system_check para RabbitMQ...")
-        #syslog.syslog("Enviando payload health_system_check para RabbitMQ...")
-        syslog.syslog(syslog.LOG_ERR, "Enviando payload health_system_check para RabbitMQ...")
         time.sleep(int(HEALTH_SYSTEM_CHECK_INTERVAL))
 
 
