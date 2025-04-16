@@ -366,7 +366,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                 tag_sensor = no_data if not result_dp_tags else result_dp_tags.xid_sensor
                 xid_dp_tags = fetch_name_value_pairs(dp_tags, 'xid_sensor', tag_sensor)
                 timestamp = datetime.now().timestamp()
-
+                result=None
                 if extracted_value == None:
                     print(f"Valor de xid_sensor: {xid_sensor} = None. Um report será enviado.")
                     logger.warning(f"Valor de xid_sensor: {xid_sensor} = None. Um report será enviado.")
@@ -431,8 +431,8 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                     except:
                         print("Erro ao gerar JSON com dados do xid_sensor", xid_sensor)
                         logger.error(f"Erro ao gerar JSON com dados do xid_sensor {xid_sensor}")
-                        result = "Erro ao gerar JSON com dados do xid_sensor", xid_sensor
-                    return result
+                        
+                return result
 
             else:
                 print("Erro ao obter dados do xid_sensor", xid_sensor, "no Sacada-LTS!")
