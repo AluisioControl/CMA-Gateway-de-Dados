@@ -367,7 +367,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                 xid_dp_tags = fetch_name_value_pairs(dp_tags, 'xid_sensor', tag_sensor)
                 timestamp = datetime.now().timestamp()
                 result=None
-                if extracted_value == None:
+                if extracted_value == None or extracted_value == null:
                     print(f"Valor de xid_sensor: {xid_sensor} = None. Um report será enviado.")
                     logger.warning(f"Valor de xid_sensor: {xid_sensor} = None. Um report será enviado.")
                     payload = {
