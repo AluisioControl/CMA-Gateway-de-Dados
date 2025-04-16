@@ -359,10 +359,10 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
         if xid_sensor != no_data:
             #print("Entrando no if xid_sensor\n")
             extracted_value = get_json_data(xid_sensor) #retorne o payload da api para extrair o value ou retorna none            
+            extracted_value = parse_json_response(extracted_value, 'value') 
 
             if extracted_value != None or extracted_value != null:
                 #print("Entrando no get_json_data(xid_sensor)\n")    
-                extracted_value = parse_json_response(extracted_value, 'value')      
                 tags_equipamento = no_data if not result_eqp_tags else result_eqp_tags.xid_equip
                 xid_eqp_tags = fetch_name_value_pairs(eqp_tags, 'xid_equip', tags_equipamento)
                 tag_sensor = no_data if not result_dp_tags else result_dp_tags.xid_sensor
