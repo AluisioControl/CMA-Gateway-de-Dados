@@ -381,61 +381,61 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
 
                     payload = json.dumps(payload, indent=4, ensure_ascii=False)
                     send_data_to_mqtt(payload)
-                    return
+                else:
                     
-                try:
-                    response_data = {
-                        "gateways": [  
-                            {
-                                "timestamp":timestamp,
-                                "gateway_id": gtw_id,
-                                "gateway_name":gateway_id,
-                                "gateway_ip":host_gateway,
-                                "SE_id":sub_id,
-                                "SE":subestacao,
-                                "SE_Region":regional
-                            }
-                        ],
-                        "sensors": [
-                            {
-                                "hardware_id": id_hdw_id,
-                                "hardware_name": name_hdw_name,
-                                "sap_id": sap_id,
-                                "type": type_sen_type,
-                                "model": model_sen_model,
-                                "sensor_id":xid_equip,
-                                "sensor_name": name_sen_name,
-                                "sensor_ip":host_datasource,
-                                "sensor_protocol": protocol,
-                                "manufacturer_id": id_man_id,
-                                "manufacturer_name": fabricante,
-                                "sensor_tags": xid_eqp_tags
-                            }
-                        ],
-                        "registers": [
-                            {
-                                "register_id": xid_sensor,
-                                "register_name": nome,
-                                "register": registrador,
-                                "phase":phase_reg,
-                                "circuitBreakerManeuverType":circuitBreakerManeuverType_reg,
-                                "bushingSide":bushingSide_reg,
-                                "register_type_id":register_type_id_reg,
-                                "register_type":register_type_reg,
-                                "sensor_type_id":sensor_type_id_reg,
-                                "sensor_type":sensor_type_reg,                                
-                                "register_tags": xid_dp_tags,
-                                "register_value": extracted_value,
-                            }
-                        ]
-                    }
-                    result = json.dumps(response_data, indent=4, ensure_ascii=False)
-                    #print("result = ", result)
-                except:
-                    print("Erro ao gerar JSON com dados do xid_sensor", xid_sensor)
-                    logger.error(f"Erro ao gerar JSON com dados do xid_sensor {xid_sensor}")
-                    result = "Erro ao gerar JSON com dados do xid_sensor", xid_sensor
-                return result
+                    try:
+                        response_data = {
+                            "gateways": [  
+                                {
+                                    "timestamp":timestamp,
+                                    "gateway_id": gtw_id,
+                                    "gateway_name":gateway_id,
+                                    "gateway_ip":host_gateway,
+                                    "SE_id":sub_id,
+                                    "SE":subestacao,
+                                    "SE_Region":regional
+                                }
+                            ],
+                            "sensors": [
+                                {
+                                    "hardware_id": id_hdw_id,
+                                    "hardware_name": name_hdw_name,
+                                    "sap_id": sap_id,
+                                    "type": type_sen_type,
+                                    "model": model_sen_model,
+                                    "sensor_id":xid_equip,
+                                    "sensor_name": name_sen_name,
+                                    "sensor_ip":host_datasource,
+                                    "sensor_protocol": protocol,
+                                    "manufacturer_id": id_man_id,
+                                    "manufacturer_name": fabricante,
+                                    "sensor_tags": xid_eqp_tags
+                                }
+                            ],
+                            "registers": [
+                                {
+                                    "register_id": xid_sensor,
+                                    "register_name": nome,
+                                    "register": registrador,
+                                    "phase":phase_reg,
+                                    "circuitBreakerManeuverType":circuitBreakerManeuverType_reg,
+                                    "bushingSide":bushingSide_reg,
+                                    "register_type_id":register_type_id_reg,
+                                    "register_type":register_type_reg,
+                                    "sensor_type_id":sensor_type_id_reg,
+                                    "sensor_type":sensor_type_reg,                                
+                                    "register_tags": xid_dp_tags,
+                                    "register_value": extracted_value,
+                                }
+                            ]
+                        }
+                        result = json.dumps(response_data, indent=4, ensure_ascii=False)
+                        #print("result = ", result)
+                    except:
+                        print("Erro ao gerar JSON com dados do xid_sensor", xid_sensor)
+                        logger.error(f"Erro ao gerar JSON com dados do xid_sensor {xid_sensor}")
+                        result = "Erro ao gerar JSON com dados do xid_sensor", xid_sensor
+                    return result
 
             else:
                 print("Erro ao obter dados do xid_sensor", xid_sensor, "no Sacada-LTS!")
