@@ -765,9 +765,7 @@ def thr_check_server_online(host: str, port: int, servername: str):
         payload = json.dumps(payload, indent=4, ensure_ascii=False)
         send_data_to_mqtt(payload)
         logger.info("Enviando payload status de conexão SACADA-LTS para RabbitMQ...")
-        #syslog.syslog("Enviando payload status de conexão SACADA-LTS para RabbitMQ...")
-        syslog.syslog(syslog.LOG_ERR, "Enviando payload status de conexão SACADA-LTS para RabbitMQ...")
-                    
+             
         time.sleep(int(STATUS_SERVER_CHECK_INTERVAL))
 
 
