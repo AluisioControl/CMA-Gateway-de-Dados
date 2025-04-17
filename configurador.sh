@@ -59,7 +59,7 @@ function configurar_placa_de_rede() {
     ler_variavel "mascara" "$env_cma_gateway" "MÁSCARA"
     ler_variavel "gateway" "$env_cma_gateway" "GATEWAY"
     ler_variavel "dns" "$env_cma_gateway" "DNS"
-    /home/cma/CMA-Gateway-de-Dados/./static_ip.sh
+    sudo /home/cma/CMA-Gateway-de-Dados/static_ip.sh
     echo "Configurações da interface de rede atualizadas com sucesso."
     sleep 2
 }

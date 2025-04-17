@@ -6,13 +6,11 @@ STATE_DIR="/home/cma/CMA-Gateway-de-Dados/logs/ativar-rede"
 LAST_INTERFACE_FILE="$STATE_DIR/ultima_interface"
 INSTALLER_YAML="/etc/netplan/99-installer-config.yaml"
 
-# Verifica se está sendo executado como root
 if [ "$EUID" -ne 0 ]; then
-  echo "❌ Por favor, execute este script como root (use sudo)"
+  echo "❌ Por favor, execute como root (use sudo)"
   exit 1
 fi
 
-# Função para converter máscara para CIDR usando bc
 mask_to_cidr() {
     local mask=$1
     IFS=. read -r o1 o2 o3 o4 <<< "$mask"
@@ -24,7 +22,6 @@ mask_to_cidr() {
     echo "$bin_mask" | grep -o "1" | wc -l
 }
 
-# Criação dos diretórios de estado e log
 mkdir -p "$STATE_DIR"
 touch "$LOG_FILE"
 chmod 644 "$LOG_FILE"
@@ -33,7 +30,6 @@ exec > >(tee -a "$LOG_FILE") 2>&1
 echo "============================="
 echo "🕓 $(date '+%Y-%m-%d %H:%M:%S') - Iniciando script de ativação de rede"
 
-# Carrega variáveis do .env com segurança
 if [ -f "$ENV_FILE" ]; then
     set -o allexport
     source "$ENV_FILE"
@@ -43,19 +39,16 @@ else
     exit 1
 fi
 
-# Validação das variáveis obrigatórias
 if [[ -z "$ip" || -z "$mascara" || -z "$gateway" || -z "$dns" ]]; then
     echo "❌ Variáveis ip, mascara, gateway ou dns não definidas no .env"
     exit 1
 fi
 
-# Validação básica da máscara
 if ! [[ "$mascara" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
     echo "❌ Máscara de sub-rede inválida: $mascara"
     exit 1
 fi
 
-# Conversão de máscara para CIDR
 CIDR=$(mask_to_cidr "$mascara")
 if [ -z "$CIDR" ]; then
     echo "❌ Falha ao converter a máscara $mascara para CIDR"
@@ -63,7 +56,6 @@ if [ -z "$CIDR" ]; then
 fi
 IP_CIDR="${ip}/${CIDR}"
 
-# Interface cabeada
 interfaces=$(ls /sys/class/net | grep -E '^eth|^en' | grep -v lo)
 
 echo "🔄 Ativando interfaces..."
@@ -72,37 +64,32 @@ for iface in $interfaces; do
     sleep 0.5
 done
 
-# Procura interface com cabo
 echo "🔍 Buscando interface com cabo conectado..."
 for iface in $interfaces; do
     carrier="/sys/class/net/$iface/carrier"
     if [ -f "$carrier" ] && [ "$(cat $carrier)" -eq 1 ]; then
         echo "✅ Cabo conectado em $iface"
 
-        echo "$iface" > "$LAST_INTERFACE_FILE"
-
-        # Arquivo netplan alvo
-        config_file="/etc/netplan/99-$iface.yaml"
-        should_generate=true
-
-        # Verifica se o conteúdo atual já está correto
-        if [ -f "$config_file" ]; then
-            current_netplan=$(grep -E '^\s*(addresses|via|nameservers):' "$config_file" | tr -d ' ')
-            desired_netplan=$(echo -e "addresses:-$IP_CIDR\nvia:$gateway\nnameservers:$(echo $dns | tr ' ' '\n' | sed 's/^/          -/')")
-            
-            echo "📋 Verificando se há diferenças no Netplan..."
-
-            diff_output=$(diff <(echo "$current_netplan") <(echo "$desired_netplan"))
-            if [ -z "$diff_output" ]; then
-                echo "✅ Configuração já está aplicada. Nada a fazer."
+        # Verifica se a interface mudou
+        iface_changed=true
+        if [ -f "$LAST_INTERFACE_FILE" ]; then
+            last_iface=$(cat "$LAST_INTERFACE_FILE")
+            if [ "$iface" = "$last_iface" ]; then
+                echo "🔁 Interface já configurada anteriormente: $iface"
+                echo "✅ Nada a fazer. A mesma interface está em uso."
                 echo "🕓 Conclusão: $(date '+%Y-%m-%d %H:%M:%S')"
                 exit 0
             else
-                echo "🔁 Alterações detectadas. Regenerando Netplan..."
+                echo "🔄 Interface alterada de $last_iface para $iface"
             fi
+        else
+            echo "📄 Nenhuma interface anterior registrada ainda."
         fi
 
-        # Desativa YAML padrão do instalador
+        # Atualiza o registro da interface usada
+        echo "$iface" > "$LAST_INTERFACE_FILE"
+
+        # Desativa Netplan padrão do instalador
         if [ -f "$INSTALLER_YAML" ]; then
             echo "📦 Backup do arquivo do instalador..."
             mv "$INSTALLER_YAML" "${INSTALLER_YAML}.bkp"
@@ -111,8 +98,9 @@ for iface in $interfaces; do
         echo "🧹 Removendo Netplans antigos..."
         rm -f /etc/netplan/99-*.yaml
 
-        # Geração do novo Netplan
+        config_file="/etc/netplan/99-$iface.yaml"
         echo "📝 Criando $config_file"
+
         {
             echo "network:"
             echo "  version: 2"
