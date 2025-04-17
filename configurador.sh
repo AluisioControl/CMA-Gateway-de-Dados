@@ -1,7 +1,7 @@
 #!/bin/bash
 
-env_cma_gateway="./CMA-Gateway-de-Dados-main/src/.env"
-env_reconcile="./Reconcile-CMA-Gateway-de-Dados-main/.env"
+env_cma_gateway="./CMA-Gateway-de-Dados/src/.env"
+env_reconcile="./Reconcile-CMA-Gateway-de-Dados/.env"
 
 function exibir_menu() {
     clear
@@ -59,7 +59,7 @@ function configurar_placa_de_rede() {
     ler_variavel "mascara" "$env_cma_gateway" "MÁSCARA"
     ler_variavel "gateway" "$env_cma_gateway" "GATEWAY"
     ler_variavel "dns" "$env_cma_gateway" "DNS"
-    ./static_ip.sh
+    /home/cma/CMA-Gateway-de-Dados/./static_ip.sh
     echo "Configurações da interface de rede atualizadas com sucesso."
     sleep 2
 }
@@ -97,8 +97,8 @@ function configurar_rabbitmq() {
 
 function executar_gateway() {
     echo "Executando CMA Gateway..."
-    cd "CMA-Gateway-de-Dados-main/src" 
-    sudo python3 main.py
+    cd "CMA-Gateway-de-Dados/src" 
+    python3 main.py
     exit
 }
 
