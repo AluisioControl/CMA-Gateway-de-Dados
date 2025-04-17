@@ -6,25 +6,38 @@ STATE_DIR="/home/cma/CMA-Gateway-de-Dados/logs/ativar-rede"
 LAST_INTERFACE_FILE="$STATE_DIR/ultima_interface"
 INSTALLER_YAML="/etc/netplan/99-installer-config.yaml"
 
-# Função para converter máscara para CIDR
+# Verifica se está sendo executado como root
+if [ "$EUID" -ne 0 ]; then
+  echo "❌ Por favor, execute este script como root (use sudo)"
+  exit 1
+fi
+
+# Função para converter máscara para CIDR usando bc
 mask_to_cidr() {
     local mask=$1
-    IFS=. read -r i1 i2 i3 i4 <<< "$mask"
-    echo "$(( (i1<<24 | i2<<16 | i3<<8 | i4) ))" | awk '{for(i=0;i<32;i++)if(!($1&(1<<(31-i))))break;print i}'
+    IFS=. read -r o1 o2 o3 o4 <<< "$mask"
+    local bin_mask=$(printf '%08d%08d%08d%08d\n' \
+        "$(echo "obase=2; $o1" | bc)" \
+        "$(echo "obase=2; $o2" | bc)" \
+        "$(echo "obase=2; $o3" | bc)" \
+        "$(echo "obase=2; $o4" | bc)")
+    echo "$bin_mask" | grep -o "1" | wc -l
 }
 
 # Criação dos diretórios de estado e log
-sudo mkdir -p "$STATE_DIR"
-sudo touch "$LOG_FILE"
-sudo chmod 644 "$LOG_FILE"
+mkdir -p "$STATE_DIR"
+touch "$LOG_FILE"
+chmod 644 "$LOG_FILE"
 exec >> "$LOG_FILE" 2>&1
 
 echo "============================="
 echo "🕓 $(date '+%Y-%m-%d %H:%M:%S') - Iniciando script de ativação de rede"
 
-# Carrega variáveis do .env (espera: ip, mascara, gateway, dns)
+# Carrega variáveis do .env com segurança
 if [ -f "$ENV_FILE" ]; then
-    export $(grep -v '^#' "$ENV_FILE" | xargs)
+    set -o allexport
+    source "$ENV_FILE"
+    set +o allexport
 else
     echo "❌ Arquivo .env não encontrado em $ENV_FILE"
     exit 1
@@ -55,7 +68,7 @@ interfaces=$(ls /sys/class/net | grep -E '^eth|^en' | grep -v lo)
 
 echo "🔄 Ativando interfaces..."
 for iface in $interfaces; do
-    sudo ip link set "$iface" up
+    ip link set "$iface" up
     sleep 0.5
 done
 
@@ -76,16 +89,16 @@ for iface in $interfaces; do
             fi
         fi
 
-        echo "$iface" | sudo tee "$LAST_INTERFACE_FILE" > /dev/null
+        echo "$iface" > "$LAST_INTERFACE_FILE"
 
         # Desativa YAML padrão do instalador
         if [ -f "$INSTALLER_YAML" ]; then
             echo "📦 Backup do arquivo do instalador..."
-            sudo mv "$INSTALLER_YAML" "${INSTALLER_YAML}.bkp"
+            mv "$INSTALLER_YAML" "${INSTALLER_YAML}.bkp"
         fi
 
         echo "🧹 Removendo Netplans antigos..."
-        sudo rm -f /etc/netplan/99-*.yaml
+        rm -f /etc/netplan/99-*.yaml
 
         # Geração do Netplan com estrutura compatível com Ubuntu 24.04
         config_file="/etc/netplan/99-$iface.yaml"
@@ -109,14 +122,14 @@ for iface in $interfaces; do
             done
             echo "        search: []"
             echo "      optional: true"
-        } | sudo tee "$config_file" > /dev/null
+        } > "$config_file"
 
-        sudo chmod 600 "$config_file"
+        chmod 600 "$config_file"
 
         echo "🔎 Validando com netplan generate..."
-        if sudo netplan generate; then
+        if netplan generate; then
             echo "✅ Configuração válida. Aplicando..."
-            sudo netplan apply
+            netplan apply
 
             echo "🌐 Testando conectividade com o gateway..."
             if ping -c 2 -W 1 "$gateway" > /dev/null; then
