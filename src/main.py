@@ -360,8 +360,9 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
             #print("Entrando no if xid_sensor\n")
             extracted_value = get_json_data(xid_sensor) #retorne o payload da api para extrair o value ou retorna none            
             extracted_value = parse_json_response(extracted_value, 'value') 
+            print("Extracted value: ", extracted_value)
 
-            if extracted_value != None or extracted_value != null:
+            if extracted_value != None:
                 #print("Entrando no get_json_data(xid_sensor)\n")    
                 tags_equipamento = no_data if not result_eqp_tags else result_eqp_tags.xid_equip
                 xid_eqp_tags = fetch_name_value_pairs(eqp_tags, 'xid_equip', tags_equipamento)
@@ -424,14 +425,14 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                         logger.error(f"Erro ao gerar JSON com dados do xid_sensor {xid_sensor}")
                         payload = {
                         "xid_erro": {
-                            "xid_sensor": "Json Error"
+                            "xid_sensor": "Json Error value"
                         }
                     }
 
                 result = json.dumps(payload, indent=4, ensure_ascii=False)
                 return result
                 
-            elif extracted_value == None or extracted_value == null:
+            elif extracted_value == None:
                     print(f"Valor de xid_sensor: {xid_sensor} = None. Um report será enviado.")
                     logger.warning(f"Valor de xid_sensor: {xid_sensor} = None. Um report será enviado.")
                     payload = {
@@ -451,7 +452,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                 payload = {
                         "xid_erro": {
                             "xid_sensor": xid_sensor,
-                            "descricao": "Json Error"
+                            "descricao": "Json Error extratecd value"
                         }
                     }
 
@@ -463,7 +464,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
         payload = {
                         "xid_erro": {
                             "xid_sensor": xid_sensor,
-                            "descricao": "Json Error"
+                            "descricao": "Json Error no data"
                         }
                     }
 
