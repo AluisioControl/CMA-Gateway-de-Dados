@@ -28,7 +28,7 @@ mask_to_cidr() {
 mkdir -p "$STATE_DIR"
 touch "$LOG_FILE"
 chmod 644 "$LOG_FILE"
-exec >> "$LOG_FILE" 2>&1
+exec > >(tee -a "$LOG_FILE") 2>&1
 
 echo "============================="
 echo "🕓 $(date '+%Y-%m-%d %H:%M:%S') - Iniciando script de ativação de rede"
@@ -79,17 +79,28 @@ for iface in $interfaces; do
     if [ -f "$carrier" ] && [ "$(cat $carrier)" -eq 1 ]; then
         echo "✅ Cabo conectado em $iface"
 
-        # Ignora se já foi usada
-        if [ -f "$LAST_INTERFACE_FILE" ]; then
-            last_iface=$(cat "$LAST_INTERFACE_FILE")
-            if [ "$iface" = "$last_iface" ]; then
-                echo "🔁 Interface já configurada anteriormente: $iface"
+        echo "$iface" > "$LAST_INTERFACE_FILE"
+
+        # Arquivo netplan alvo
+        config_file="/etc/netplan/99-$iface.yaml"
+        should_generate=true
+
+        # Verifica se o conteúdo atual já está correto
+        if [ -f "$config_file" ]; then
+            current_netplan=$(grep -E '^\s*(addresses|via|nameservers):' "$config_file" | tr -d ' ')
+            desired_netplan=$(echo -e "addresses:-$IP_CIDR\nvia:$gateway\nnameservers:$(echo $dns | tr ' ' '\n' | sed 's/^/          -/')")
+            
+            echo "📋 Verificando se há diferenças no Netplan..."
+
+            diff_output=$(diff <(echo "$current_netplan") <(echo "$desired_netplan"))
+            if [ -z "$diff_output" ]; then
+                echo "✅ Configuração já está aplicada. Nada a fazer."
                 echo "🕓 Conclusão: $(date '+%Y-%m-%d %H:%M:%S')"
                 exit 0
+            else
+                echo "🔁 Alterações detectadas. Regenerando Netplan..."
             fi
         fi
-
-        echo "$iface" > "$LAST_INTERFACE_FILE"
 
         # Desativa YAML padrão do instalador
         if [ -f "$INSTALLER_YAML" ]; then
@@ -100,10 +111,8 @@ for iface in $interfaces; do
         echo "🧹 Removendo Netplans antigos..."
         rm -f /etc/netplan/99-*.yaml
 
-        # Geração do Netplan com estrutura compatível com Ubuntu 24.04
-        config_file="/etc/netplan/99-$iface.yaml"
+        # Geração do novo Netplan
         echo "📝 Criando $config_file"
-
         {
             echo "network:"
             echo "  version: 2"
