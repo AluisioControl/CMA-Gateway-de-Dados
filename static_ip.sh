@@ -1,8 +1,8 @@
 #!/bin/bash
 
-LOG_FILE="/var/log/ativar-rede.log"
-ENV_FILE="/usr/local/bin/rede.env"
-STATE_DIR="/var/lib/ativar-rede"
+LOG_FILE="/home/cma/CMA-Gateway-de-Dados/logs/ativar-rede.log"
+ENV_FILE="/home/cma/CMA-Gateway-de-Dados/src/.env"
+STATE_DIR="/home/cma/CMA-Gateway-de-Dados/logs/ativar-rede"
 LAST_INTERFACE_FILE="$STATE_DIR/ultima_interface"
 INSTALLER_YAML="/etc/netplan/99-installer-config.yaml"
 
