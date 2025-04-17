@@ -1,7 +1,7 @@
 #!/bin/bash
 
 LOG_FILE="/var/log/ativar-rede.log"
-ENV_FILE="CMA-Gateway-de-Dados-main/src/.env"
+ENV_FILE="CMA-Gateway-de-Dados/src/.env"
 STATE_DIR="/var/lib/ativar-rede"
 LAST_INTERFACE_FILE="$STATE_DIR/ultima_interface"
 
