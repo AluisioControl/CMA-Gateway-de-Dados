@@ -1,0 +1,20 @@
+[project]
+name = "cma-gateway"
+version = "0.1.0"
+description = "Gateway de dados com Scada-LTS"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [{ name = "Aluisio Cavalcante", email = "aluisio@controlengenharia.eng.br" }]
+dependencies = [
+    "ConfigParser==7.2.0",
+    "databases==0.9.0",
+    "iniparse==0.5",
+    "pika==1.3.2",
+    "psutil==6.1.0",
+    "pycurl==7.45.3",
+    "pytest==8.3.4",
+    "python-dotenv==1.1.0",
+    "SQLAlchemy==2.0.36",
+    "aiosqlite==0.21.0"
+]
+
