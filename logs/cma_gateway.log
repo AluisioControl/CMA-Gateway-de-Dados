@@ -1,1 +1,287 @@
 
+[GATEWAY-CMA] 2025-04-19 19:03:46,034 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:03:46,040 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:03:46,041 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:03:46,041 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:03:46,042 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:03:46,050 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:03:46,051 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:03:46,903 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:03:46,904 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:03:46,905 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:03:46,906 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:03:46,907 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:03:46,910 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:03:46,911 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:03:58,063 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:03:58,063 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:03:58,063 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:03:58,063 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:03:58,063 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:03:58,065 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:03:58,065 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:03:58,945 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:03:58,945 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:03:58,945 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:03:58,946 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:03:58,946 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:03:58,948 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:03:58,948 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:04:10,076 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:04:10,077 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:04:10,078 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:04:10,078 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:04:10,079 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:04:10,081 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:04:10,082 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:04:10,963 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:04:10,964 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:04:10,964 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:04:10,964 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:04:10,964 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:04:10,966 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:04:10,966 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:04:22,100 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:04:22,101 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:04:22,102 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:04:22,103 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:04:22,103 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:04:22,107 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:04:22,108 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:04:22,991 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:04:22,993 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:04:22,993 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:04:22,994 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:04:22,994 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:04:22,996 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:04:22,997 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:04:34,137 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:04:34,137 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:04:34,137 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:04:34,137 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:04:34,138 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:04:34,139 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:04:34,139 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:04:35,026 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:04:35,028 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:04:35,029 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:04:35,031 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:04:35,032 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:04:35,038 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:04:35,040 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:04:46,154 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:04:46,154 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:04:46,154 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:04:46,155 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:04:46,155 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:04:46,156 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:04:46,157 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:04:47,057 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:04:47,058 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:04:47,058 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:04:47,058 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:04:47,058 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:04:47,060 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:04:47,060 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:04:58,177 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:04:58,178 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:04:58,178 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:04:58,179 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:04:58,179 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:04:58,200 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:04:58,202 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:04:59,073 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:04:59,074 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:04:59,074 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:04:59,074 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:04:59,075 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:04:59,078 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:04:59,079 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:05:10,230 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:05:10,231 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:05:10,231 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:05:10,231 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:05:10,231 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:05:10,233 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:05:10,233 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:05:11,078 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:05:11,079 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:05:11,079 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:05:11,079 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:05:11,079 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:05:11,081 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:05:11,081 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:05:22,269 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:05:22,270 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:05:22,271 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:05:22,271 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:05:22,272 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:05:22,276 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:05:22,277 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:05:23,080 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:05:23,080 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:05:23,081 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:05:23,081 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:05:23,081 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:05:23,082 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:05:23,083 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:05:35,098 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:05:35,100 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:05:35,101 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:05:35,101 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:05:35,102 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:05:35,110 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:05:35,112 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:05:47,104 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:05:47,105 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:05:47,106 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:05:47,106 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:05:47,107 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:05:47,111 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:05:47,112 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:05:59,135 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:05:59,135 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:05:59,135 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:05:59,135 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:05:59,135 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:05:59,137 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:05:59,137 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:06:34,471 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:06:34,472 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:06:34,473 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:06:34,473 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:06:34,473 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:06:34,476 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:06:34,477 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:06:46,497 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:06:46,497 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:06:46,497 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:06:46,497 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:06:46,497 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:06:46,508 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:06:46,518 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:06:58,515 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:06:58,516 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:06:58,517 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:06:58,518 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:06:58,518 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:06:58,521 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:06:58,523 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:07:10,529 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:07:10,530 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:07:10,530 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:07:10,530 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:07:10,530 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:07:10,531 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:07:10,531 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
+[GATEWAY-CMA] 2025-04-19 19:07:12,199 - ERROR - _report_completion_and_cleanup - AMQPConnector - reporting failure: AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))")
+[GATEWAY-CMA] 2025-04-19 19:07:12,200 - ERROR - _start_new_cycle_async - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None.
+[GATEWAY-CMA] 2025-04-19 19:07:12,201 - ERROR - _report_completion_and_cleanup - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:07:12,201 - ERROR - _create_connection - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - AMQPConnectorSocketConnectError: TimeoutError("TCP connection attempt timed out: '192.168.0.45'/(<AddressFamily.AF_INET: 2>, <SocketKind.SOCK_STREAM: 1>, 6, '', ('192.168.0.45', 5672))"); first exception - None
+[GATEWAY-CMA] 2025-04-19 19:07:12,201 - ERROR - _create_connection - Error in _create_connection().
+Traceback (most recent call last):
+  File "C:\Users\Caval\OneDrive\Documentos\CMA-Gateway-de-Dados\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+pika.exceptions.AMQPConnectionError
+[GATEWAY-CMA] 2025-04-19 19:07:12,205 - ERROR - check_rabbitmq_connection - Erro ao checar conexão como RabbitMQ: 
+[GATEWAY-CMA] 2025-04-19 19:07:12,206 - ERROR - send_data_to_mqtt - Não foi possível conectar ao servidor RabbitMQ.
