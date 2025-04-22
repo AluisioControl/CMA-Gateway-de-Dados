@@ -48,7 +48,7 @@ def get_cookie_from_url(url):
 
         print(f"Status Code ao obter cookie: {status_code}")
         #print(f"Cabeçalhos recebidos:\n{headers}")
-
+        logger.info(f"Status code da autenticação SCADA: {status_code}")
         cookies = [line for line in headers if 'Set-Cookie' in line]
         
         if status_code == 200 and cookies:
@@ -62,6 +62,7 @@ def get_cookie_from_url(url):
 
                 print(f"Novo cookie armazenado: {cookie_cache['value']}, expira em {time.ctime(cookie_cache['expires_at'])}")
                 logger.warning(f"Novo cookie armazenado: {cookie_cache['value']}, expira em {time.ctime(cookie_cache['expires_at'])}")
+                logger.info(f"Novo cookie armazenado: {cookie}")
                 return cookie
             else:
                 print("Erro ao extrair o cookie do cabeçalho.")
@@ -90,20 +91,24 @@ def get_with_cookie(url, cookie, xid_sensor):
         curl.perform()
         status_code = curl.getinfo(pycurl.RESPONSE_CODE)
         response_data = buffer.getvalue().decode('utf-8')
+        logger.info(f"GET {url} retornou status {status_code}")
 
-        #print(f"Status Code GET: {status_code}")
+        print(f"Status Code GET: {status_code}")
         #print(f"Resposta bruta: {response_data}")
 
         if status_code != 200:
             print(f"Erro ao buscar dados do xid_sensor {xid_sensor}. Status: {status_code}")
+            logger.warning(f"Erro ao buscar dados do sensor {xid_sensor}: status {status_code}")
             return None
 
         return json.loads(response_data) if response_data else None
     except json.JSONDecodeError:
         print("Erro ao decodificar JSON. Resposta vazia ou inválida.")
+        logger.error("Erro ao decodificar JSON de resposta.")
         return None
     except Exception as e:
         print(f"Erro na requisição GET: {e}")
+        logger.error(f"Erro na requisição GET: {e}")
         return None
     finally:
         curl.close()
@@ -114,12 +119,14 @@ def get_valid_cookie():
     current_time = time.time()
     print(f"Tempo atual: {current_time} ({time.ctime(current_time)})")
     print(f"Tempo de expiração do cookie: {cookie_cache['expires_at']} ({time.ctime(cookie_cache['expires_at'])})")
-
+    
     if cookie_cache["value"] and current_time < cookie_cache["expires_at"]:
         print(f"Usando cookie armazenado: {cookie_cache['value']}")
+        logger.info("Usando cookie armazenado.")
         return cookie_cache["value"]
     
     print("Cookie expirado ou inexistente. Renovando...")
+    logger.info("Cookie expirado ou inexistente. Solicitando novo...")
     return get_cookie_from_url(AUTH_URL)
 
 
@@ -129,6 +136,7 @@ def get_json_data(xid_sensor):
     if cookie:
         url_get_value = f"{URL_BASE}/Scada-LTS/api/point_value/getValue/{xid_sensor}"
         print(f"Requisição GET para: {url_get_value} com cookie {cookie}")
+        logger.info(f"Buscando valor do sensor {xid_sensor} via SCADA-LTS")
         response_json = get_with_cookie(url_get_value, cookie, xid_sensor)
         #print("response=", response_json)
         return response_json
@@ -171,16 +179,15 @@ def auth_ScadaLTS():
         c.setopt(c.WRITEDATA, buffer)
         c.perform()
         c.close()
-        response = buffer.getvalue().decode('utf-8')
+        #response = buffer.getvalue().decode('utf-8')
+        logger.info("Autenticação SCADA-LTS realizada com sucesso.")
         # print(response)
         #print("Atenticado no SCADA-LTS!")
         return True 
     except ConnectionError as e:
-        return False
         print(f"Erro ao tentar autenticar no SCADA-LTS: {e}")
         logger.error(f"Erro ao tentar autenticar no SCADA-LTS: {e}")
-
-
+        return False 
 
 
 def send_data_to_scada(raw_data):
@@ -207,8 +214,9 @@ def send_data_to_scada(raw_data):
         c.setopt(c.WRITEDATA, buffer)
         c.perform()
         c.close()
-        response = buffer.getvalue().decode('utf-8')
+        #response = buffer.getvalue().decode('utf-8')
         #print(response)
+        logger.info("Dados enviados para o SCADA-LTS via EmportDwr.")
         print("send_data_to_scada", raw_data)
     except ConnectionError as e:
         logger.error(f"Erro ao enviar dados ao SCADA-LTS: {e}")

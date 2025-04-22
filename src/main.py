@@ -424,7 +424,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                         print("Erro ao gerar JSON com dados do xid_sensor", xid_sensor)
                         logger.error(f"Erro ao gerar JSON com dados do xid_sensor {xid_sensor}")
                         payload = {
-                        "xid_erro": {
+                        "xid_error": {
                             "xid_sensor": "Json Error value"
                         }
                     }
@@ -436,7 +436,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                     print(f"Valor de xid_sensor: {xid_sensor} = None. Um report será enviado.")
                     logger.warning(f"Valor de xid_sensor: {xid_sensor} = None. Um report será enviado.")
                     payload = {
-                        "xid_erro": {
+                        "xid_error": {
                             "xid_sensor_none": xid_sensor
                         }
                     }
@@ -450,7 +450,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                 print("Erro ao obter dados do xid_sensor", xid_sensor, "no Sacada-LTS!")
                 logger.error(f"Erro ao obter dados do xid_sensor {xid_sensor} no Sacada-LTS!")
                 payload = {
-                        "xid_erro": {
+                        "xid_error": {
                             "xid_sensor": xid_sensor,
                             "descricao": "Json Error extratecd value"
                         }
@@ -869,35 +869,25 @@ def start_main_threads():
         active_threads["process_scada"] = process_scada  # Armazena a referência da thread
         process_scada.start()
     
-    '''
+    
     """Inicia os processos para monitorar o sistema (health check)"""
     if "health_checker" not in active_threads:
         health_checker = threading.Thread(target=thr_get_system_info, args=(), daemon = True)
         active_threads["health_checker"] = health_checker  # Armazena a referência da thread
         health_checker.start()
-    '''
+   
     """Inicia os processos de comunicação com Scada-LTS e envio de dados para MQTT"""
     
     if "modbus_thread" not in active_threads:
         modbus_thread = threading.Thread(target=thr_start_routines_sensor, args=(datasource_modbus_ip,"modbus"), daemon=True)
         active_threads["modbus_thread"] = modbus_thread  # Armazena a referência da thread
         modbus_thread.start()
-    '''
+    
     if "dnp3_thread" not in active_threads:
         dnp3_thread = threading.Thread(target=thr_start_routines_sensor, args=(datasource_dnp3,"dnp3"), daemon=True)
         active_threads["dnp3_thread"] = dnp3_thread  # Armazena a referência da thread
         dnp3_thread.start()
-    '''
-'''
-if __name__ == "__main__":
-    start_main_threads()
-
-#Garante que todas as threads sejam encerradas
-for thread in threading.enumerate():
-    if thread is not threading.main_thread():
-        thread.join()
-'''
-
+    
 # ========== Tratamento de encerramento com Ctrl+C ==========
 
 def signal_handler(sig, frame):
@@ -917,5 +907,6 @@ signal.signal(signal.SIGINT, signal_handler)
 # ========== Ponto de entrada ==========
 if __name__ == "__main__":
     start_main_threads()
+    logger.info("CMA Gateway de Dados iniciado com sucesso.")
     print("✅ Aplicação iniciada. Pressione Ctrl+C para encerrar.\n")
     signal.pause()  # Aguarda interrupção (Ctrl+C)

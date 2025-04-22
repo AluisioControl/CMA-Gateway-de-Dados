@@ -48,6 +48,7 @@ def check_rabbitmq_connection():
 
         # Tentando estabelecer a conexão
         connection = pika.BlockingConnection(connection_params)
+        logger.info("Conexão com RabbitMQ foi bem-sucedida!")
 
         # Se chegou aqui, a conexão foi bem-sucedida
         print("Conexão com RabbitMQ foi bem-sucedida!")
@@ -77,6 +78,7 @@ def send_rabbitmq(payload=str):
         bool: True se a mensagem foi enviada com sucesso, False caso contrário.
     """
     if payload == None:
+        logger.warning("Tentativa de envio de payload vazio ao RabbitMQ.")
         print("Nenhum conteúdo para enviar ao RabbitMQ!")
         return False    
     try:
@@ -92,6 +94,7 @@ def send_rabbitmq(payload=str):
             exchange=RABBIT_CAMINHO, routing_key=RABBIT_CHAVE, body=payload)
 
         connection.close()
+        logger.info(f"Payload enviado com sucesso para fila '{RABBIT_TOPICO}'.")
         return True
 
     except pika.exceptions.AMQPConnectionError as e:
