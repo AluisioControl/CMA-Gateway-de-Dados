@@ -888,7 +888,7 @@ def start_main_threads():
         active_threads["dnp3_thread"] = dnp3_thread  # Armazena a referência da thread
         dnp3_thread.start()
     '''
-
+'''
 if __name__ == "__main__":
     start_main_threads()
 
@@ -896,3 +896,26 @@ if __name__ == "__main__":
 for thread in threading.enumerate():
     if thread is not threading.main_thread():
         thread.join()
+'''
+
+# ========== Tratamento de encerramento com Ctrl+C ==========
+
+def signal_handler(sig, frame):
+    print("\n⛔ Encerrando execução por Ctrl+C...")
+    stop_event.set()
+
+    for name, thread in active_threads.items():
+        print(f"🔁 Finalizando thread: {name} ...")
+        if thread.is_alive():
+            thread.join(timeout=5)
+
+    print("✅ Todas as threads encerradas. Encerrando aplicação.")
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
+
+# ========== Ponto de entrada ==========
+if __name__ == "__main__":
+    start_main_threads()
+    print("✅ Aplicação iniciada. Pressione Ctrl+C para encerrar.\n")
+    signal.pause()  # Aguarda interrupção (Ctrl+C)
