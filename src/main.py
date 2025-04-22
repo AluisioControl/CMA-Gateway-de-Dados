@@ -863,30 +863,31 @@ def thr_start_routines_sensor(datasource, protocol):
 # =======================================================================
 def start_main_threads():
     """Inicia os processos para checar servidores.""" 
-
+    
     if "process_scada" not in active_threads:
         process_scada = threading.Thread(target=thr_check_server_online, args=("127.0.0.1", 8080, "SCADA-LTS"), daemon=True)
         active_threads["process_scada"] = process_scada  # Armazena a referência da thread
         process_scada.start()
     
+    '''
     """Inicia os processos para monitorar o sistema (health check)"""
     if "health_checker" not in active_threads:
         health_checker = threading.Thread(target=thr_get_system_info, args=(), daemon = True)
         active_threads["health_checker"] = health_checker  # Armazena a referência da thread
         health_checker.start()
-
+    '''
     """Inicia os processos de comunicação com Scada-LTS e envio de dados para MQTT"""
     
     if "modbus_thread" not in active_threads:
         modbus_thread = threading.Thread(target=thr_start_routines_sensor, args=(datasource_modbus_ip,"modbus"), daemon=True)
         active_threads["modbus_thread"] = modbus_thread  # Armazena a referência da thread
         modbus_thread.start()
-
+    '''
     if "dnp3_thread" not in active_threads:
         dnp3_thread = threading.Thread(target=thr_start_routines_sensor, args=(datasource_dnp3,"dnp3"), daemon=True)
         active_threads["dnp3_thread"] = dnp3_thread  # Armazena a referência da thread
         dnp3_thread.start()
-    
+    '''
 
 if __name__ == "__main__":
     start_main_threads()

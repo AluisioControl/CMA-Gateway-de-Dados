@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script configurador com validação, entrada visível e compatível
+# Script configurador principal com integração ao config_envs.sh
 
 path_main="C:/Users/Caval/OneDrive/Documentos/CMA-Gateway-de-Dados/src/"
 path_collect="C:/Users/Caval/OneDrive/Documentos/Reconcile-CMA-Gateway-de-Dados/"
@@ -17,6 +17,7 @@ function exibir_menu() {
     echo "[2] - Configurar CMA WEB"
     echo "[3] - Configurar Servidor de Notificação"
     echo "[4] - Iniciar Gateway de Dados"
+    echo "[5] - Configurar Variáveis Complementares"
     echo "[0] - Sair"
     echo ""
 }
@@ -51,7 +52,6 @@ function ler_variavel() {
     local VAR_FORMATADA=$1
     local TIPO_VALIDACAO=$2
 
-    # Pega o valor atual do primeiro arquivo como base para exibição
     local VALOR_ATUAL_COM_ASPAS=$(grep -E "^$VAR=" "${ARQUIVOS[0]}" | cut -d '=' -f2-)
     local VALOR_SEM_ASPAS=$(echo "$VALOR_ATUAL_COM_ASPAS" | sed 's/^"//;s/"$//')
 
@@ -75,7 +75,7 @@ function ler_variavel() {
         esac
     done
 
-    [[ $NOVO_VALOR == *" "* || $NOVO_VALOR == *'"'* ]] && NOVO_VALOR="\"$NOVO_VALOR\""
+    [[ $NOVO_VALOR == *" "* || $NOVO_VALOR == *'"'* ]] && NOVO_VALOR=""$NOVO_VALOR""
 
     for ARQUIVO in "${ARQUIVOS[@]}"; do
         if grep -qE "^$VAR=" "$ARQUIVO"; then
@@ -85,7 +85,6 @@ function ler_variavel() {
         fi
     done
 }
-
 
 function configurar_placa_de_rede() {
     echo "Configurar Interface de Rede... (Tecle Enter para manter a informação atual)"
@@ -105,7 +104,6 @@ function configurar_reconcile() {
     ler_variavel "GWTDADOS_PASSWORD" "$env_reconcile" "SENHA CMA WEB"
     ler_variavel "GATEWAY_NAME" "$env_reconcile" "NOME DO GATEWAY"
     echo "... Aguarde enquanto o Gateway é verificado no CMA Web ..."
-    #local path_collect="C:/Users/Caval/OneDrive/Documentos/Reconcile-CMA-Gateway-de-Dados/"
     if [ -d "$path_collect" ]; then
         cd "$path_collect" || exit 1
         uv run python -m app.collect_cma_web
@@ -132,15 +130,46 @@ function configurar_rabbitmq() {
 
 function executar_gateway() {
     echo "Executando CMA Gateway..."
-    #local caminho="C:/Users/Caval/OneDrive/Documentos/CMA-Gateway-de-Dados/src"
     if [ -d "$path_main" ]; then
         cd "$path_main" || exit 1
         uv run python main.py
     else
         echo "❌ Caminho não encontrado: $path_main"
     fi
-    exit
+    read -p "Pressione Enter para continuar..."
+    sleep 2
 }
+
+
+function configurar_variaveis_complementares() {
+    echo "Configurar Variáveis Complementares (.env)..."
+
+    # CMA Gateway
+    ler_variavel "DATABASE_URL" "$env_cma_gateway" "Diretório do Banco de Dados"
+    ler_variavel "URL_BASE" "$env_cma_gateway" "Host SCADA-LTS (CMA Gateway)"
+    ler_variavel "username" "$env_cma_gateway" "Usuário SCADA-LTS (CMA Gateway)"
+    ler_variavel "password" "$env_cma_gateway" "Senha SCADA-LTS (CMA Gateway)"
+    ler_variavel "LOG_LINUX" "$env_cma_gateway" "Diretório Log CMA Gateway"
+    ler_variavel "HEALTH_CHECK_INTERVAL" "$env_cma_gateway" "Intervalo Health Check (s)"
+    ler_variavel "STATUS_SERVER_CHECK_INTERVAL" "$env_cma_gateway" "Intervalo de Verificação de Status (s)"
+
+    # Reconcile
+    ler_variavel "SQLITE_MIDDLEWARE_PATH" "$env_reconcile" "Diretório do Banco de Dados"
+    ler_variavel "SCADALTS_USERNAME" "$env_reconcile" "Usuário SCADA-LTS (Reconcile)"
+    ler_variavel "SCADALTS_PASSWORD" "$env_reconcile" "Senha SCADA-LTS (Reconcile)"
+    ler_variavel "SCADALTS_HOST" "$env_reconcile" "Host SCADA-LTS (Reconcile)"
+    ler_variavel "DEBUG" "$env_reconcile" "Modo Debug (True/False)"
+    ler_variavel "MAX_PAGE_SIZE" "$env_reconcile" "Tamanho Máximo por Página"
+    ler_variavel "MAX_PARALLEL_REQUESTS" "$env_reconcile" "Máximo de Requisições Paralelas"
+    ler_variavel "MAX_RETRIES" "$env_reconcile" "Máximo de ReTentativas"
+    ler_variavel "SCADALTS_DELETE_TYPE" "$env_reconcile" "Tipo de Exclusão (soft/hard)"
+
+    echo ""
+    echo "✅ Variáveis complementares atualizadas com sucesso."
+    read -p "Pressione Enter para continuar..."
+    sleep 2
+}
+
 
 # Loop principal
 while true; do
@@ -151,6 +180,7 @@ while true; do
         2) configurar_reconcile ;;
         3) configurar_rabbitmq ;;
         4) executar_gateway ;;
+        5) configurar_variaveis_complementares ;;
         0) echo "Saindo..."; exit 0 ;;
         *) echo "Opção inválida."; sleep 2 ;;
     esac

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script configurador com validação, entrada visível e compatível
+# Script configurador principal com integração ao config_envs.sh
 
 path_main="C:/Users/Caval/OneDrive/Documentos/CMA-Gateway-de-Dados/src/"
 path_collect="C:/Users/Caval/OneDrive/Documentos/Reconcile-CMA-Gateway-de-Dados/"
@@ -17,6 +17,7 @@ function exibir_menu() {
     echo "[2] - Configurar CMA WEB"
     echo "[3] - Configurar Servidor de Notificação"
     echo "[4] - Iniciar Gateway de Dados"
+    echo "[5] - Configurar Variáveis Complementares"
     echo "[0] - Sair"
     echo ""
 }
@@ -51,7 +52,6 @@ function ler_variavel() {
     local VAR_FORMATADA=$1
     local TIPO_VALIDACAO=$2
 
-    # Pega o valor atual do primeiro arquivo como base para exibição
     local VALOR_ATUAL_COM_ASPAS=$(grep -E "^$VAR=" "${ARQUIVOS[0]}" | cut -d '=' -f2-)
     local VALOR_SEM_ASPAS=$(echo "$VALOR_ATUAL_COM_ASPAS" | sed 's/^"//;s/"$//')
 
@@ -75,7 +75,7 @@ function ler_variavel() {
         esac
     done
 
-    [[ $NOVO_VALOR == *" "* || $NOVO_VALOR == *'"'* ]] && NOVO_VALOR="\"$NOVO_VALOR\""
+    [[ $NOVO_VALOR == *" "* || $NOVO_VALOR == *'"'* ]] && NOVO_VALOR=""$NOVO_VALOR""
 
     for ARQUIVO in "${ARQUIVOS[@]}"; do
         if grep -qE "^$VAR=" "$ARQUIVO"; then
@@ -85,7 +85,6 @@ function ler_variavel() {
         fi
     done
 }
-
 
 function configurar_placa_de_rede() {
     echo "Configurar Interface de Rede... (Tecle Enter para manter a informação atual)"
@@ -105,7 +104,6 @@ function configurar_reconcile() {
     ler_variavel "GWTDADOS_PASSWORD" "$env_reconcile" "SENHA CMA WEB"
     ler_variavel "GATEWAY_NAME" "$env_reconcile" "NOME DO GATEWAY"
     echo "... Aguarde enquanto o Gateway é verificado no CMA Web ..."
-    #local path_collect="C:/Users/Caval/OneDrive/Documentos/Reconcile-CMA-Gateway-de-Dados/"
     if [ -d "$path_collect" ]; then
         cd "$path_collect" || exit 1
         uv run python -m app.collect_cma_web
@@ -132,15 +130,84 @@ function configurar_rabbitmq() {
 
 function executar_gateway() {
     echo "Executando CMA Gateway..."
-    #local caminho="C:/Users/Caval/OneDrive/Documentos/CMA-Gateway-de-Dados/src"
     if [ -d "$path_main" ]; then
         cd "$path_main" || exit 1
         uv run python main.py
     else
         echo "❌ Caminho não encontrado: $path_main"
     fi
-    exit
+    read -p "Pressione Enter para continuar..."
+    sleep 2
 }
+
+
+
+
+
+
+
+
+
+
+function ler_valor_compartilhado() {
+    local VAR_FORMATADA="$1"
+    shift
+
+    if (( ($# % 2) != 0 )); then
+        echo "❌ Erro: número inválido de argumentos para variáveis e arquivos"
+        return 1
+    fi
+
+    local n=$(($#/2))
+    local -a VARS=("${@:1:$n}")
+    local -a ARQS=("${@:$((n + 1))}")
+
+    local BASE_VAR="${VARS[0]}"
+    local BASE_ARQ="${ARQS[0]}"
+
+    local VALOR_ATUAL=$(grep -E "^$BASE_VAR=" "$BASE_ARQ" 2>/dev/null | cut -d '=' -f2- | sed 's/^"//;s/"$//')
+    echo ""
+    read -e -p "➤ $VAR_FORMATADA [$VALOR_ATUAL]: " NOVO_VALOR
+    NOVO_VALOR="${NOVO_VALOR:-$VALOR_ATUAL}"
+    [[ $NOVO_VALOR == *" "* || $NOVO_VALOR == *'"'* ]] && NOVO_VALOR="\"$NOVO_VALOR\""
+
+    for ((i = 0; i < ${#VARS[@]}; i++)); do
+        local VAR="${VARS[$i]}"
+        local ARQ="${ARQS[$i]}"
+
+        if grep -q "^$VAR=" "$ARQ"; then
+            sed "s|^$VAR=.*|$VAR=$NOVO_VALOR|" "$ARQ" > "${ARQ}.tmp" && mv "${ARQ}.tmp" "$ARQ"
+        else
+            echo "$VAR=$NOVO_VALOR" >> "$ARQ"
+        fi
+    done
+}
+
+function configurar_variaveis_complementares() {
+    echo "Configurar Variáveis Complementares (.env)..."
+
+    ler_valor_compartilhado "URL Base do SCADA" \
+        URL_BASE "$env_cma_gateway" \
+        SCADALTS_HOST "$env_reconcile"
+
+    ler_valor_compartilhado "Usuário SCADA-LTS" \
+        username "$env_cma_gateway" \
+        SCADALTS_USERNAME "$env_reconcile"
+
+    ler_valor_compartilhado "Senha SCADA-LTS" \
+        password "$env_cma_gateway" \
+        SCADALTS_PASSWORD "$env_reconcile"
+
+    ler_valor_compartilhado "URL do Banco de Dados" \
+        DATABASE_URL "$env_cma_gateway" \
+        SQLITE_MIDDLEWARE_PATH "$env_reconcile"
+
+    echo ""
+    echo "✅ Variáveis complementares atualizadas com sucesso."
+    read -p "Pressione Enter para continuar..."
+    sleep 2
+}
+
 
 # Loop principal
 while true; do
@@ -151,6 +218,7 @@ while true; do
         2) configurar_reconcile ;;
         3) configurar_rabbitmq ;;
         4) executar_gateway ;;
+        5) configurar_variaveis_complementares ;;
         0) echo "Saindo..."; exit 0 ;;
         *) echo "Opção inválida."; sleep 2 ;;
     esac
