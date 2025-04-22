@@ -1,10 +1,10 @@
 #!/bin/bash
 # Script configurador principal com integração ao config_envs.sh
 
-path_main="C:/Users/Caval/OneDrive/Documentos/CMA-Gateway-de-Dados/src/"
-path_collect="C:/Users/Caval/OneDrive/Documentos/Reconcile-CMA-Gateway-de-Dados/"
-env_cma_gateway="C:/Users/Caval/OneDrive/Documentos/CMA-Gateway-de-Dados/src/.env"
-env_reconcile="C:/Users/Caval/OneDrive/Documentos/Reconcile-CMA-Gateway-de-Dados/.env"
+path_main="/home/cma/CMA-Gateway-de-Dados/src/"
+path_collect="/home/cma/Reconcile-CMA-Gateway-de-Dados/"
+env_cma_gateway="/home/cma/CMA-Gateway-de-Dados/src/.env"
+env_reconcile="/home/cma/Reconcile-CMA-Gateway-de-Dados/.env"
 
 function exibir_menu() {
     clear
