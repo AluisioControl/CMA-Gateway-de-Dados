@@ -13,15 +13,19 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
+mask_to_network() {
+    local ip="$1"
+    local mask="$2"
+    IFS=. read -r i1 i2 i3 i4 <<< "$ip"
+    IFS=. read -r m1 m2 m3 m4 <<< "$mask"
+    printf "%d.%d.%d.%d\n" \
+        "$((i1 & m1))" "$((i2 & m2))" "$((i3 & m3))" "$((i4 & m4))"
+}
+
 mask_to_cidr() {
     local mask=$1
     IFS=. read -r o1 o2 o3 o4 <<< "$mask"
-    local bin_mask=$(printf '%08d%08d%08d%08d\n' \
-        "$(echo "obase=2; $o1" | bc)" \
-        "$(echo "obase=2; $o2" | bc)" \
-        "$(echo "obase=2; $o3" | bc)" \
-        "$(echo "obase=2; $o4" | bc)")
-    echo "$bin_mask" | grep -o "1" | wc -l
+    echo $(( (o1<<24 | o2<<16 | o3<<8 | o4) )) | awk '{for(i=0;i<32;i++)if(!($1&(1<<(31-i))))break;print i}'
 }
 
 mkdir -p "$STATE_DIR"
@@ -73,7 +77,7 @@ for iface in $interfaces; do
         ip_val="${!ip_var}"
         mask_val="${!mask_var}"
         gw_val="${!gw_var}"
-        dns_val="${!dns_var}"
+        dns_val="${!dns_val}"
         range_start="${!range_start_var}"
         range_end="${!range_end_var}"
 
@@ -83,9 +87,10 @@ for iface in $interfaces; do
         elif [[ "$dhcp_server_val" == "true" ]]; then
             CIDR=$(mask_to_cidr "$mask_val")
             IP_CIDR="${ip_val}/${CIDR}"
+            network=$(mask_to_network "$ip_val" "$mask_val")
             echo "🖧 Interface $iface será IP fixo e servidor DHCP ($IP_CIDR)"
             configured_interfaces+=("$iface:static:$IP_CIDR:$gw_val:$dns_val")
-            dhcp_servers+=("$iface:$ip_val:$mask_val:$range_start:$range_end:$dns_val")
+            dhcp_servers+=("$iface:$network:$mask_val:$range_start:$range_end:$dns_val:$ip_val")
         elif [[ -n "$ip_val" && -n "$mask_val" && -n "$gw_val" && -n "$dns_val" ]]; then
             CIDR=$(mask_to_cidr "$mask_val")
             IP_CIDR="${ip_val}/${CIDR}"
@@ -97,41 +102,12 @@ for iface in $interfaces; do
     fi
 done
 
-if [ ${#configured_interfaces[@]} -eq 0 ]; then
-    echo "⚠️ Nenhuma interface com cabo e configuração válida encontrada."
-    echo "🕓 Conclusão: $(date '+%Y-%m-%d %H:%M:%S')"
-    exit 0
+if [ -f "$INSTALLER_YAML" ]; then
+    mv "$INSTALLER_YAML" "$INSTALLER_YAML.bkp"
 fi
-
-# DHCP Server: instalar e configurar
-if [ ${#dhcp_servers[@]} -gt 0 ]; then
-    echo "📦 Instalando isc-dhcp-server (se necessário)..."
-    apt install -y isc-dhcp-server
-
-    echo "🔧 Atualizando $DHCP_DEFAULT com interfaces..."
-    interfaces_line=$(printf "%s " "${dhcp_servers[@]}" | cut -d: -f1 | xargs)
-    echo "INTERFACESv4=\"$interfaces_line\"" | tee "$DHCP_DEFAULT"
-
-    echo "📝 Gerando $DHCP_CONF..."
-    echo "# dhcpd.conf gerado por static_ip.sh" > "$DHCP_CONF"
-    for entry in "${dhcp_servers[@]}"; do
-        IFS=':' read -r iface ip mask start end dns <<< "$entry"
-        network=$(ipcalc "$ip" "$mask" | grep Network | cut -d: -f2 | awk '{print $1}')
-        netmask=$(ipcalc "$ip" "$mask" | grep Netmask | head -n1 | awk '{print $2}')
-        echo "" >> "$DHCP_CONF"
-        echo "subnet $network netmask $netmask {" >> "$DHCP_CONF"
-        echo "  range $start $end;" >> "$DHCP_CONF"
-        echo "  option routers $ip;" >> "$DHCP_CONF"
-        echo "  option domain-name-servers $dns;" >> "$DHCP_CONF"
-        echo "}" >> "$DHCP_CONF"
-    done
-fi
-
-# Netplan
-[ -f "$INSTALLER_YAML" ] && mv "$INSTALLER_YAML" "${INSTALLER_YAML}.bkp"
 rm -f /etc/netplan/99-*.yaml
 
-echo "📝 Criando $NETPLAN_FILE"
+echo "📝 Criando Netplan consolidado em $NETPLAN_FILE"
 {
     echo "network:"
     echo "  version: 2"
@@ -165,6 +141,30 @@ echo "📝 Criando $NETPLAN_FILE"
 
 chmod 600 "$NETPLAN_FILE"
 
+if [ ${#dhcp_servers[@]} -gt 0 ]; then
+    echo "📦 Instalando isc-dhcp-server (se necessário)..."
+    apt install -y isc-dhcp-server
+    echo "🔧 Atualizando $DHCP_DEFAULT com interfaces..."
+    interfaces_line=$(printf "%s " "${dhcp_servers[@]}" | cut -d: -f1 | xargs)
+    echo "INTERFACESv4=\"$interfaces_line\"" > "$DHCP_DEFAULT"
+
+    echo "📝 Gerando $DHCP_CONF..."
+    echo "# dhcpd.conf gerado por static_ip.sh" > "$DHCP_CONF"
+    for entry in "${dhcp_servers[@]}"; do
+        IFS=':' read -r iface network mask start end dns router <<< "$entry"
+        echo "" >> "$DHCP_CONF"
+        echo "subnet $network netmask $mask {" >> "$DHCP_CONF"
+        echo "  range $start $end;" >> "$DHCP_CONF"
+        echo "  option routers $router;" >> "$DHCP_CONF"
+        echo "  option domain-name-servers $dns;" >> "$DHCP_CONF"
+        echo "}" >> "$DHCP_CONF"
+    done
+
+    echo "🔄 Reiniciando isc-dhcp-server..."
+    systemctl restart isc-dhcp-server
+    systemctl enable isc-dhcp-server
+fi
+
 echo "🔎 Validando Netplan..."
 if netplan generate; then
     echo "✅ Aplicando Netplan..."
@@ -172,13 +172,6 @@ if netplan generate; then
 else
     echo "❌ Erro na validação Netplan"
     exit 1
-fi
-
-# Reinicia DHCP server
-if [ ${#dhcp_servers[@]} -gt 0 ]; then
-    echo "🔄 Reiniciando isc-dhcp-server..."
-    systemctl restart isc-dhcp-server
-    systemctl enable isc-dhcp-server
 fi
 
 echo "✅ Todas interfaces configuradas com sucesso!"
