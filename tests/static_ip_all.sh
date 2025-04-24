@@ -54,7 +54,7 @@ for iface in $interfaces; do
     carrier="/sys/class/net/$iface/carrier"
     if [ -f "$carrier" ] && [ "$(cat $carrier)" -eq 1 ]; then
         echo "✅ Cabo detectado em $iface"
-        IFACE_ENV=$(echo "$iface" | tr '[:lower:]' '[:upper:]')  # ex: eth1 → ETH1
+        IFACE_ENV=$(echo "$iface" | tr '[:lower:]' '[:upper:]')  # eth1 → ETH1
 
         ip_var="${IFACE_ENV}_IP"
         mask_var="${IFACE_ENV}_MASK"
@@ -96,6 +96,7 @@ echo "📝 Criando Netplan consolidado em $NETPLAN_FILE"
     echo "network:"
     echo "  version: 2"
     echo "  ethernets:"
+    metric=100
     for config in "${configured_interfaces[@]}"; do
         IFS=':' read -r iface ip_cidr gw dns <<< "$config"
         echo "    $iface:"
@@ -105,6 +106,7 @@ echo "📝 Criando Netplan consolidado em $NETPLAN_FILE"
         echo "      routes:"
         echo "        - to: default"
         echo "          via: $gw"
+        echo "          metric: $metric"
         echo "      nameservers:"
         echo "        addresses:"
         for d in $dns; do
@@ -112,6 +114,7 @@ echo "📝 Criando Netplan consolidado em $NETPLAN_FILE"
         done
         echo "        search: []"
         echo "      optional: true"
+        metric=$((metric + 100))
     done
 } > "$NETPLAN_FILE"
 
