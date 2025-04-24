@@ -73,7 +73,7 @@ generate_dhcp_conf() {
   } > "$DHCP_CONF"
 }
 
-# Integração com configuração DHCP do .env (exemplo dinâmico)
+# Integração com configuração DHCP do .env
 if [ -f "$ENV_FILE" ]; then
   set -a
   . "$ENV_FILE"
@@ -81,24 +81,25 @@ if [ -f "$ENV_FILE" ]; then
 
   for i in {0..4}; do
     iface="eth$i"
-    mode_var="${iface^^}_MODE"
+    dhcp_server_var="${iface^^}_DHCP_SERVER"
     ip_var="${iface^^}_IP"
     mask_var="${iface^^}_MASK"
-    range_start_var="${iface^^}_DHCP_START"
-    range_end_var="${iface^^}_DHCP_END"
+    range_start_var="${iface^^}_DHCP_RANGE_START"
+    range_end_var="${iface^^}_DHCP_RANGE_END"
     dns_var="${iface^^}_DNS"
 
-    eval mode="\$$mode_var"
+    eval is_dhcp_server="\$$dhcp_server_var"
     eval ip="\$$ip_var"
     eval mask="\$$mask_var"
     eval range_start="\$$range_start_var"
     eval range_end="\$$range_end_var"
     eval dns="\$$dns_var"
 
-    if [[ "$mode" == "dhcp-server" ]]; then
+    if [[ "$is_dhcp_server" == "true" ]]; then
       echo "🔧 Gerando configuração DHCP para $iface ($ip/$mask)..."
       generate_dhcp_conf "$iface" "$ip" "$mask" "$range_start" "$range_end" "$dns"
       echo "🔄 Reiniciando isc-dhcp-server..."
+      echo "INTERFACESv4=\"$iface\"" > "$DHCP_DEFAULT"
       systemctl restart isc-dhcp-server
     fi
   done
