@@ -54,25 +54,30 @@ for iface in $interfaces; do
     carrier="/sys/class/net/$iface/carrier"
     if [ -f "$carrier" ] && [ "$(cat $carrier)" -eq 1 ]; then
         echo "✅ Cabo detectado em $iface"
-        IFACE_ENV=$(echo "$iface" | tr '[:lower:]' '[:upper:]')  # eth1 → ETH1
+        IFACE_ENV=$(echo "$iface" | tr '[:lower:]' '[:upper:]')
 
+        dhcp_var="${IFACE_ENV}_DHCP"
         ip_var="${IFACE_ENV}_IP"
         mask_var="${IFACE_ENV}_MASK"
         gw_var="${IFACE_ENV}_GW"
         dns_var="${IFACE_ENV}_DNS"
 
+        dhcp_val="${!dhcp_var}"
         ip_val="${!ip_var}"
         mask_val="${!mask_var}"
         gw_val="${!gw_var}"
         dns_val="${!dns_var}"
 
-        if [[ -n "$ip_val" && -n "$mask_val" && -n "$gw_val" && -n "$dns_val" ]]; then
+        if [[ "$dhcp_val" == "true" ]]; then
+            echo "📡 Interface $iface será configurada com DHCP"
+            configured_interfaces+=("$iface:dhcp")
+        elif [[ -n "$ip_val" && -n "$mask_val" && -n "$gw_val" && -n "$dns_val" ]]; then
             CIDR=$(mask_to_cidr "$mask_val")
             IP_CIDR="${ip_val}/${CIDR}"
-            echo "📌 Interface $iface será configurada com $IP_CIDR"
-            configured_interfaces+=("$iface:$IP_CIDR:$gw_val:$dns_val")
+            echo "📌 Interface $iface será configurada com IP $IP_CIDR"
+            configured_interfaces+=("$iface:static:$IP_CIDR:$gw_val:$dns_val")
         else
-            echo "⚠️ Variáveis não definidas no .env para $iface (esperado: ${IFACE_ENV}_IP, _MASK, _GW, _DNS)"
+            echo "⚠️ Variáveis insuficientes para configurar $iface no modo estático ou DHCP"
         fi
     fi
 done
@@ -98,23 +103,28 @@ echo "📝 Criando Netplan consolidado em $NETPLAN_FILE"
     echo "  ethernets:"
     metric=100
     for config in "${configured_interfaces[@]}"; do
-        IFS=':' read -r iface ip_cidr gw dns <<< "$config"
+        IFS=':' read -r iface mode ip_cidr gw dns <<< "$config"
         echo "    $iface:"
-        echo "      addresses:"
-        echo "        - $ip_cidr"
-        echo "      dhcp6: false"
-        echo "      routes:"
-        echo "        - to: default"
-        echo "          via: $gw"
-        echo "          metric: $metric"
-        echo "      nameservers:"
-        echo "        addresses:"
-        for d in $dns; do
-            echo "          - $d"
-        done
-        echo "        search: []"
+        if [ "$mode" = "dhcp" ]; then
+            echo "      dhcp4: true"
+            echo "      dhcp6: false"
+        else
+            echo "      addresses:"
+            echo "        - $ip_cidr"
+            echo "      dhcp6: false"
+            echo "      routes:"
+            echo "        - to: default"
+            echo "          via: $gw"
+            echo "          metric: $metric"
+            echo "      nameservers:"
+            echo "        addresses:"
+            for d in $dns; do
+                echo "          - $d"
+            done
+            echo "        search: []"
+            metric=$((metric + 100))
+        fi
         echo "      optional: true"
-        metric=$((metric + 100))
     done
 } > "$NETPLAN_FILE"
 
@@ -124,20 +134,10 @@ echo "🔎 Validando com netplan generate..."
 if netplan generate; then
     echo "✅ Netplan válido. Aplicando..."
     netplan apply
-
-    echo "🌐 Testando conectividade..."
-    for config in "${configured_interfaces[@]}"; do
-        IFS=':' read -r iface _ gw _ <<< "$config"
-        if ping -c 2 -W 1 "$gw" > /dev/null; then
-            echo "✅ Gateway $gw alcançado via $iface"
-        else
-            echo "⚠️ Sem resposta do gateway $gw via $iface"
-        fi
-    done
 else
     echo "❌ Falha na validação do Netplan"
     exit 1
 fi
 
-echo "✅ Interfaces configuradas: ${#configured_interfaces[@]}"
+echo "✅ Interfaces configuradas com sucesso!"
 echo "🕓 Conclusão: $(date '+%Y-%m-%d %H:%M:%S')"
