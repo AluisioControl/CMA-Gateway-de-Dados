@@ -32,21 +32,74 @@ mask_to_cidr() {
     echo "$bin" | tr -cd '1' | wc -c
 }
 
+sanitize_dns_list() {
+    local raw_list="$1"
+    local sanitized=""
+    for dns in $raw_list; do
+        if [[ $dns =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            sanitized+="$dns "
+        fi
+    done
+    echo "$sanitized"
+}
+
 mkdir -p "$STATE_DIR"
 touch "$LOG_FILE"
 chmod 644 "$LOG_FILE"
 exec > >(tee -a "$LOG_FILE") 2>&1
 
-echo "============================="
-echo "🕓 $(date '+%Y-%m-%d %H:%M:%S') - Iniciando script de ativação de rede"
+# Função para gerar dhcpd.conf corrigida
+generate_dhcp_conf() {
+  local iface="$1"
+  local ip="$2"
+  local mask="$3"
+  local range_start="$4"
+  local range_end="$5"
+  local raw_dns="$6"
 
+  local subnet
+  subnet=$(mask_to_network "$ip" "$mask")
+  local sanitized_dns
+  sanitized_dns=$(sanitize_dns_list "$raw_dns")
+
+  {
+    echo "subnet $subnet netmask $mask {"
+    echo "  range $range_start $range_end;"
+    echo "  option routers $ip;"
+    if [[ -n "$sanitized_dns" ]]; then
+      echo "  option domain-name-servers $sanitized_dns;"
+    fi
+    echo "}"
+  } > "$DHCP_CONF"
+}
+
+# Integração com configuração DHCP do .env (exemplo dinâmico)
 if [ -f "$ENV_FILE" ]; then
-    set -o allexport
-    source "$ENV_FILE"
-    set +o allexport
+  export $(grep -v '^#' "$ENV_FILE" | xargs)
+
+  for i in {0..4}; do
+    iface="eth$i"
+    mode_var="${iface^^}_MODE"
+    ip_var="${iface^^}_IP"
+    mask_var="${iface^^}_MASK"
+    range_start_var="${iface^^}_DHCP_START"
+    range_end_var="${iface^^}_DHCP_END"
+    dns_var="${iface^^}_DNS"
+
+    eval mode="\$$mode_var"
+    eval ip="\$$ip_var"
+    eval mask="\$$mask_var"
+    eval range_start="\$$range_start_var"
+    eval range_end="\$$range_end_var"
+    eval dns="\$$dns_var"
+
+    if [[ "$mode" == "dhcp-server" ]]; then
+      echo "🔧 Gerando configuração DHCP para $iface ($ip/$mask)..."
+      generate_dhcp_conf "$iface" "$ip" "$mask" "$range_start" "$range_end" "$dns"
+    fi
+  done
 else
-    echo "❌ Arquivo .env não encontrado em $ENV_FILE"
-    exit 1
+  echo "❌ Arquivo .env não encontrado em $ENV_FILE"
 fi
 
 interfaces=$(ls /sys/class/net | grep -E '^eth|^en' | grep -v lo)
