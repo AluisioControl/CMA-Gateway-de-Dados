@@ -25,7 +25,11 @@ mask_to_network() {
 mask_to_cidr() {
     local mask=$1
     IFS=. read -r o1 o2 o3 o4 <<< "$mask"
-    echo $(( (o1<<24 | o2<<16 | o3<<8 | o4) )) | awk '{for(i=0;i<32;i++)if(!($1&(1<<(31-i))))break;print i}'
+    local bin=""
+    for octet in $o1 $o2 $o3 $o4; do
+        bin+=$(printf "%08d" "$(echo "obase=2;$octet" | bc)")
+    done
+    echo "$bin" | tr -cd '1' | wc -c
 }
 
 mkdir -p "$STATE_DIR"
