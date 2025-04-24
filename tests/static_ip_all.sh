@@ -37,7 +37,10 @@ sanitize_dns_list() {
     local sanitized=""
     for dns in $raw_list; do
         if [[ $dns =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            sanitized+="$dns "
+            if [ -n "$sanitized" ]; then
+                sanitized+=", "
+            fi
+            sanitized+="$dns"
         fi
     done
     echo "$sanitized"
@@ -63,6 +66,8 @@ generate_dhcp_conf() {
   sanitized_dns=$(sanitize_dns_list "$raw_dns")
 
   {
+    echo "# dhcpd.conf gerado por static_ip.sh"
+    echo ""
     echo "subnet $subnet netmask $mask {"
     echo "  range $range_start $range_end;"
     echo "  option routers $ip;"
