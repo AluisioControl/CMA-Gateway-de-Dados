@@ -75,7 +75,9 @@ generate_dhcp_conf() {
 
 # Integração com configuração DHCP do .env (exemplo dinâmico)
 if [ -f "$ENV_FILE" ]; then
-  export $(grep -v '^#' "$ENV_FILE" | xargs)
+  set -a
+  . "$ENV_FILE"
+  set +a
 
   for i in {0..4}; do
     iface="eth$i"
@@ -96,6 +98,8 @@ if [ -f "$ENV_FILE" ]; then
     if [[ "$mode" == "dhcp-server" ]]; then
       echo "🔧 Gerando configuração DHCP para $iface ($ip/$mask)..."
       generate_dhcp_conf "$iface" "$ip" "$mask" "$range_start" "$range_end" "$dns"
+      echo "🔄 Reiniciando isc-dhcp-server..."
+      systemctl restart isc-dhcp-server
     fi
   done
 else
