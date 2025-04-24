@@ -77,7 +77,7 @@ for iface in $interfaces; do
         ip_val="${!ip_var}"
         mask_val="${!mask_var}"
         gw_val="${!gw_var}"
-        dns_val="${!dns_val}"
+        dns_val="${!dns_var}"
         range_start="${!range_start_var}"
         range_end="${!range_end_var}"
 
