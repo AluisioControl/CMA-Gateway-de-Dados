@@ -230,6 +230,7 @@ if [ ${#dhcp_servers[@]} -gt 0 ]; then
     done
 
 
+
     echo "🔄 Reiniciando isc-dhcp-server..."
     systemctl restart isc-dhcp-server
     systemctl enable isc-dhcp-server

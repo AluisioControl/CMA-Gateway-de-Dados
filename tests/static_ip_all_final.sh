@@ -1,5 +1,4 @@
-
-#!/usr/bin/env bash
+#!/bin/bash
 
 LOG_FILE="/home/cma/CMA-Gateway-de-Dados/logs/ativar-rede.log"
 ENV_FILE="/home/cma/CMA-Gateway-de-Dados/src/.env"
@@ -153,18 +152,16 @@ if [ ${#dhcp_servers[@]} -gt 0 ]; then
     echo "📝 Gerando $DHCP_CONF..."
     echo "# dhcpd.conf gerado por static_ip_all.sh" > "$DHCP_CONF"
     for entry in "${dhcp_servers[@]}"; do
-        IFS=':' read -r iface network mask start end dns router <<< "$entry"
-        sanitized_dns=$(sanitize_dns_list "$dns")
-        {
-            echo ""
-            echo "# Bloco gerado para $iface"
-            echo "subnet $network netmask $mask {"
-            echo "  range $start $end;"
-            echo "  option routers $router;"
-            echo "  option domain-name-servers $sanitized_dns;"
-            echo "}"
-        } >> "$DHCP_CONF"
-    done
+    IFS=':' read -r iface network mask start end dns router <<< "$entry"
+    sanitized_dns=$(sanitize_dns_list "$dns")
+    echo "" >> "$DHCP_CONF"
+    echo "# Bloco gerado para $iface" >> "$DHCP_CONF"
+    echo "subnet $network netmask $mask {" >> "$DHCP_CONF"
+    echo "  range $start $end;" >> "$DHCP_CONF"
+    echo "  option routers $router;" >> "$DHCP_CONF"
+    echo "  option domain-name-servers $sanitized_dns;" >> "$DHCP_CONF"
+    echo "}" >> "$DHCP_CONF"
+done
 
     echo "🔎 Validando $DHCP_CONF..."
     if dhcpd -t; then
