@@ -161,11 +161,11 @@ function configurar_interfaces_fisicas() {
     ler_variavel "${iface}_DHCP_RANGE_END" "$env_cma_gateway" "DHCP Fim do Range" "ip"
 
     echo ""
-    echo "✅ Configurações de $iface atualizadas com sucesso."
-    read -p "Pressione Enter para continuar..."
-    sleep 2
     echo "🚀 Aplicando nova configuração de rede..."
     sudo /home/cma/CMA-Gateway-de-Dados/scripts/static_ip_all.sh
+    echo "✅ Configurações de $iface atualizadas com sucesso."
+    read -p "Pressione Enter para continuar..."
+    sleep 2    
 }
 
 function configurar_reconcile() {
