@@ -165,7 +165,7 @@ function configurar_interfaces_fisicas() {
     read -p "Pressione Enter para continuar..."
     sleep 2
     echo "🚀 Aplicando nova configuração de rede..."
-    sudo ./static_ip_all.sh
+    sudo /home/cma/CMA-Gateway-de-Dados/scripts/static_ip_all.sh
 }
 
 function configurar_reconcile() {
