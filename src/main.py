@@ -909,4 +909,4 @@ if __name__ == "__main__":
     start_main_threads()
     logger.info("CMA Gateway de Dados iniciado com sucesso.")
     print("✅ Aplicação iniciada. Pressione Ctrl+C para encerrar.\n")
-    #signal.pause()  # Aguarda interrupção (Ctrl+C)
+    signal.pause()  # Aguarda interrupção (Ctrl+C)
