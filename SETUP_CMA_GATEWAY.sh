@@ -162,7 +162,7 @@ function configurar_interfaces_fisicas() {
 
     echo ""
     echo "🚀 Aplicando nova configuração de rede..."
-    sudo /home/cma/CMA-Gateway-de-Dados/scripts/static_ip_all.sh
+    sudo /home/cma/CMA-Gateway-de-Dados/scripts/static_ip_all_final.sh
     echo "✅ Configurações de $iface atualizadas com sucesso."
     read -p "Pressione Enter para continuar..."
     sleep 2    
