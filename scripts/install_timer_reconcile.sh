@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SCRIPT_PATH="/home/cma/Scripts/exec_reconcile.sh"
+SCRIPT_PATH="/home/cma/scripts/exec_reconcile.sh"
 SERVICE_NAME="exec_reconcile"
 SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}.service"
 TIMER_FILE="/etc/systemd/system/${SERVICE_NAME}.timer"
