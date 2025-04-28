@@ -372,8 +372,8 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                 #result=None #Se result é atribuído como None após primeiro resultado válido como os demais procederão corretamente?
  
                 try:
-                        response_data = {
-                            "gateways": [  
+                        response_data = [{
+                            "gateways":  
                                 {
                                     "timestamp":timestamp,
                                     "gateway_id": gtw_id,
@@ -383,8 +383,8 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                                     "SE":subestacao,
                                     "SE_Region":regional
                                 }
-                            ],
-                            "sensors": [
+                            ,
+                            "sensors":
                                 {
                                     "hardware_id": id_hdw_id,
                                     "hardware_name": name_hdw_name,
@@ -399,8 +399,8 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                                     "manufacturer_name": fabricante,
                                     "sensor_tags": xid_eqp_tags
                                 }
-                            ],
-                            "registers": [
+                            ,
+                            "registers":
                                 {
                                     "register_id": xid_sensor,
                                     "register_name": nome,
@@ -415,8 +415,8 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                                     "register_tags": xid_dp_tags,
                                     "register_value": extracted_value,
                                 }
-                            ]
-                        }
+                            
+                        }]
                         result = json.dumps(response_data, indent=4, ensure_ascii=False)
                         return result
                         #print("result = ", result)
