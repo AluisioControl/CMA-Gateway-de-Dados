@@ -18,7 +18,7 @@ while True:
     method_frame, header_frame, body = channel.basic_get(queue=fila, auto_ack=True)
     if method_frame:
         mensagens.append(body.decode())
-        print(f"✅ Mensagem recebida: {body.decode()}")
+        print(f",{body.decode()}")
     else:
         break
 

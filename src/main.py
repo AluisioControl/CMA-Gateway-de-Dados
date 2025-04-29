@@ -372,7 +372,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                 #result=None #Se result é atribuído como None após primeiro resultado válido como os demais procederão corretamente?
  
                 try:
-                        response_data = [{
+                        response_data = {
                             "gateways":  
                                 {
                                     "timestamp":timestamp,
@@ -415,7 +415,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                                     "register_value": extracted_value,
                                 }
                             
-                        }]
+                        }
                         result = json.dumps(response_data, indent=4, ensure_ascii=False)
                         return result
                         #print("result = ", result)
