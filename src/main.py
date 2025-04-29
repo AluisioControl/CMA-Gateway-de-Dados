@@ -382,8 +382,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                                     "SE_id":sub_id,
                                     "SE":subestacao,
                                     "SE_Region":regional
-                                }
-                            ,
+                                },
                             "sensors":
                                 {
                                     "hardware_id": id_hdw_id,
@@ -393,13 +392,13 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                                     "model": model_sen_model,
                                     "sensor_id":xid_equip,
                                     "sensor_name": name_sen_name,
+                                    "sensor_model": model_sen_model,
                                     "sensor_ip":host_datasource,
                                     "sensor_protocol": protocol,
                                     "manufacturer_id": id_man_id,
                                     "manufacturer_name": fabricante,
-                                    "sensor_tags": xid_eqp_tags
-                                }
-                            ,
+                                    "sensor_tags": [xid_eqp_tags]
+                                },
                             "registers":
                                 {
                                     "register_id": xid_sensor,
@@ -412,7 +411,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                                     "register_type":register_type_reg,
                                     "sensor_type_id":sensor_type_id_reg,
                                     "sensor_type":sensor_type_reg,                                
-                                    "register_tags": xid_dp_tags,
+                                    "register_tags": [xid_dp_tags],
                                     "register_value": extracted_value,
                                 }
                             
