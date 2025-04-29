@@ -791,7 +791,7 @@ def thr_check_server_online(host: str, port: int, servername: str):
         }
 
         payload = json.dumps(payload, indent=4, ensure_ascii=False)
-        send_data_to_mqtt(payload)
+        #send_data_to_mqtt(payload)
         logger.info("Enviando payload status de conexão SACADA-LTS para RabbitMQ...")
              
         time.sleep(int(STATUS_SERVER_CHECK_INTERVAL))
@@ -863,12 +863,12 @@ def thr_start_routines_sensor(datasource, protocol):
 def start_main_threads():
     """Inicia os processos para checar servidores.""" 
     
-    '''
+    
     if "process_scada" not in active_threads:
         process_scada = threading.Thread(target=thr_check_server_online, args=("127.0.0.1", 8080, "SCADA-LTS"), daemon=True)
         active_threads["process_scada"] = process_scada  # Armazena a referência da thread
         process_scada.start()
-    '''
+    
     '''
     """Inicia os processos para monitorar o sistema (health check)"""
     if "health_checker" not in active_threads:
