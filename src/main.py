@@ -475,28 +475,8 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
 
 
 def send_data_to_mqtt(content_data):
-    """
-    Função que armazena e envia um JSON para o RabbitMQ,
-    tratando concorrência na fila de persistência.
-
-    Parameters
-    ----------
-    content_data : str
-        Conteúdo do JSON a ser armazenado e enviado ao RabbitMQ.
-
-    Returns
-    -------
-    dict
-        Dicionário com chave "error" caso haja erro. Caso contrário,
-        retorna None.
-
-    Notes
-    -----
-    1. Armazena o JSON no campo content_data e False no campo sended.
-    2. Processa a tabela como uma fila, pegando e bloqueando um registro
-       por vez, enviando para o RabbitMQ, e excluindo se for sucesso.
-    """
     print("send_data_to_mqtt -> content_data = ", content_data)
+
     if content_data == "":
         print("Nenhum conteúdo para enviar ao MQTT!")
         return
@@ -507,12 +487,12 @@ def send_data_to_mqtt(content_data):
     try:
         insert_query = persistence.__table__.insert().values(
             content_data=content_data,
-            sended=False 
+            sended=False
         )
         session_insert.execute(insert_query)
-        session_insert.commit() 
+        session_insert.commit()
         print("Registro inserido na fila com sucesso!")
-        logger.info("Registro inserido na fila com sucesso!")
+        logger.warning("Registro inserido na fila com sucesso!")
     except SQLAlchemyError as e:
         session_insert.rollback()
         logger.error(f"Erro ao inserir registro na fila: {str(e)}")
@@ -520,87 +500,6 @@ def send_data_to_mqtt(content_data):
     finally:
         session_insert.close()
 
-
-    # 2 - Cria uma nova sessão, percorre a tabela 
-    # e envia para o RabbitMQ o JSON onde sended = False. 
-    # Se o envio for sucesso exclui o registro da tabela
-    session_process = SessionLocal()
-    try:
-        while True:
-
-            query = select(persistence).where(persistence.sended == False).order_by(persistence.id).limit(1).with_for_update()
-
-            # Executa a query e obtem o primeiro item da fila
-            item = session_process.execute(query).scalars().first()
-
-            if item is None:
-                print("Nenhum registro pendente para enviar.")
-                logger.info("Nenhum registro pendente para enviar.")
-                session_process.close()
-                break # sai do loop
-
-            print(f"Processando envio de item id: {item.id}")
-            logger.info(f"Processando envio de item id: {item.id}")
-            
-            send_success = False
-            ntries = 3
-            current_try = 1
-            while (ntries + 1 > current_try):
-                print(f"Tentativa de envio {current_try} de {ntries} para item {item.id}")
-                logger.info(f"Tentativa de envio {current_try} de {ntries} para item {item.id}")
-
-                if check_rabbitmq_connection(): # Verifica se o RabbitMQ está online antes de enviar
-                    print("Servidor RabbitMQ está acessível!")
-                    logger.info("Servidor RabbitMQ está acessível!")
-                    # Envia para rabbitMq o item atual e retorna True se o envio foi bem-sucedido ou False se falhou
-                    status = send_rabbitmq(item.content_data)
-                    if status:
-                        send_success = True
-                        print(f"Envio bem-sucedido para item {item.id}.")
-                        logger.info(f"Envio bem-sucedido para item {item.id}.")
-                        break # sai do loop
-                    else:
-                         print(f"Falha no envio RabbitMQ (send_rabbitmq retornou False) para item {item.id}.")
-                         # Maybe a specific RabbitMQ transient error? Retry.
-                         current_try += 1
-                         time.sleep(2) # Wait before retrying
-
-                else:
-                    send_success = False
-                    print(f"Não foi possível conectar ao servidor RabbitMQ para item {item.id}.")
-                    logger.error(f"Não foi possível conectar ao servidor RabbitMQ para item {item.id}.")
-                    current_try += 1
-                    time.sleep(2) # aguarda 2 segundos antes de tentar novamente
-
-            # Se o envio foi sucesso, exclui o item da tabela
-            if send_success:
-                print(f"Excluindo item {item.id} após envio bem-sucedido.")
-                logger.info(f"Excluindo item {item.id} após envio bem-sucedido.")
-                item.sended = True
-                delete_query = persistence.__table__.delete().where(
-                    persistence.__table__.c.id == item.id
-                )
-                session_process.execute(delete_query)
-                session_process.commit()
-                print(f"Exclusão de registro temporário {item.id} concluída com sucesso!")
-                logger.info(f"Exclusão de registro temporário {item.id} concluída com sucesso!")
-                # Loop continua para o próximo item da tabela PERSISTENCIA
-            else:
-                print(f"Falha persistente ao enviar mensagem para o MQTT para item {item.id}. Mantendo na fila.")
-                logger.error(f"Falha persistente ao enviar mensagem para o MQTT para item {item.id}. Mantendo na fila.")
-                session_process.rollback() # Desfaz transações em caso de erro
-
-
-
-    except SQLAlchemyError as e:
-        session_process.rollback() 
-        logger.error(f"Erro no banco de dados durante processamento da fila: {str(e)}")
-        return {"error": f"Erro no banco de dados durante processamento da fila: {str(e)}"}
-
-    finally:
-        session_process.close()
-
-    return None
 
 
 def get_periods_eqp(table_class, protocol):
@@ -893,6 +792,122 @@ def thr_start_routines_sensor(datasource, protocol):
         #print("Processos de sensores rodando no momento: ", len(proccess_map))
         time.sleep(1)
 
+def thr_proccess_mqtt_queue():
+    print("Iniciando thread thr_proccess_mqtt_queue...")
+    logger.warning("Iniciando thread thr_proccess_mqtt_queue...")
+    while True:
+        session_process = None
+        try:
+            print("\n\n\nProcessando a fila de envios para o RabbitMQ...")
+            logger.warning("Processando a fila de envios para o RabbitMQ...")
+            session_process = SessionLocal()
+            query = select(persistence).where(persistence.sended == False).order_by(
+                persistence.id)
+
+            # Executa a query e obtem o primeiro item da fila
+            result = session_process.execute(query)
+            item = result.scalars().first()
+
+            if item is None:
+                print("Nenhum registro pendente para enviar.")
+                logger.warning("Nenhum registro pendente para enviar.")
+                # Fechamos a sessão antes de dormir para evitar manter conexões abertas
+                if session_process:
+                    session_process.close()
+                    session_process = None
+                # Ao invés de sair do loop, apenas espera 1 segundo e tenta novamente
+                time.sleep(1)
+                continue  # Continua para a próxima iteração do loop
+
+            # Capturamos os valores necessários para não depender do objeto depois
+            item_id = item.id
+            content_data = item.content_data
+            
+            print(f"Processando envio do primeiro item da fila...")
+            logger.warning(f"Processando envio do primeiro item da fila...")
+
+            send_success = False
+            ntries = 3
+            current_try = 1
+            
+            while (ntries + 1 > current_try):
+                print(f"Tentativa de envio {current_try} de {ntries} para item {item_id}")
+                logger.warning(f"Tentativa de envio {current_try} de {ntries} para item {item_id}")
+
+                if check_rabbitmq_connection():  # Verifica se o RabbitMQ está online antes de enviar
+                    print("Servidor RabbitMQ está acessível!")
+                    logger.warning("Servidor RabbitMQ está acessível!")
+                    # Envia para rabbitMq o item atual e retorna True se o envio foi bem-sucedido ou False se falhou
+                    status = send_rabbitmq(content_data)
+                    if status:
+                        send_success = True
+                        print(f"Envio bem-sucedido para item {item_id}.")
+                        logger.warning(f"Envio bem-sucedido para item {item_id}.")
+                        break  # sai do loop
+                    else:
+                        print(
+                            f"Falha no envio RabbitMQ (send_rabbitmq retornou False) para item {item_id}.")
+                        # Maybe a specific RabbitMQ transient error? Retry.
+                        current_try += 1
+                        time.sleep(2)  # Wait before retrying
+
+                else:
+                    send_success = False
+                    print(f"Não foi possível conectar ao servidor RabbitMQ para item {item_id}.")
+                    logger.warning(f"Não foi possível conectar ao servidor RabbitMQ para item {item_id}.")
+                    current_try += 1
+                    # aguarda 2 segundos antes de tentar novamente
+                    time.sleep(2)
+
+            # Se o envio foi sucesso, exclui o item da tabela
+            if send_success:
+                try:
+                    print(f"Excluindo item {item_id} após envio bem-sucedido...")
+                    logger.warning(f"Excluindo item {item_id} após envio bem-sucedido...")
+
+                    # Criamos uma nova conexão para garantir que não estamos usando uma conexão expirada
+                    if not session_process or session_process.is_active == False:
+                        if session_process:
+                            session_process.close()
+                        session_process = SessionLocal()
+                        
+                    # Usamos item_id armazenado antes, não dependemos mais do objeto item
+                    delete_query = persistence.__table__.delete().where(
+                        persistence.__table__.c.id == item_id
+                    )
+                    session_process.execute(delete_query)
+                    session_process.commit()
+                    print(f"Exclusão de registro temporário {item_id} concluída com sucesso!")
+                    logger.warning(f"Exclusão de registro temporário {item_id} concluída com sucesso!")
+                except SQLAlchemyError as e:
+                    print(f"Erro ao excluir registro {item_id}: {str(e)}")
+                    logger.warning(f"Erro ao excluir registro {item_id}: {str(e)}")
+                    if session_process:
+                        session_process.rollback()
+                        
+                # Não é necessário sleep aqui, continuamos para processar o próximo item
+
+            else:
+                print(f"Falha persistente ao enviar mensagem para o MQTT para item {item_id}. Mantendo na fila.")
+                logger.warning(f"Falha persistente ao enviar mensagem para o MQTT para item {item_id}. Mantendo na fila.")
+                if session_process and session_process.is_active:
+                    session_process.rollback()  # Desfaz transações em caso de erro
+                # Aguarda 1 segundo antes de tentar novamente
+                time.sleep(1)
+
+        except SQLAlchemyError as e:
+            print(f"Erro no banco de dados durante processamento da fila: {str(e)}")
+            logger.warning(
+                f"Erro no banco de dados durante processamento da fila: {str(e)}")
+            if session_process and session_process.is_active:
+                session_process.rollback()
+            time.sleep(1)  # Aguarda 1 segundo antes de tentar novamente
+
+        finally:
+            if session_process:
+                session_process.close()
+                session_process = None
+
 
 # =======================================================================
 # Função principal de inicialização das threads de 
@@ -906,7 +921,13 @@ def start_main_threads():
         process_scada = threading.Thread(target=thr_check_server_online, args=("127.0.0.1", 8080, "SCADA-LTS"), daemon=True)
         active_threads["process_scada"] = process_scada  # Armazena a referência da thread
         process_scada.start()
-    
+
+ def start_main_threads():
+    if "procces_mqtt_queue" not in active_threads:
+        procces_mqtt_queue = threading.Thread(target=thr_proccess_mqtt_queue, args=(), daemon=True)
+        # Armazena a referência da thread
+        active_threads["procces_mqtt_queue"] = procces_mqtt_queue
+        procces_mqtt_queue.start()   
     '''
     """Inicia os processos para monitorar o sistema (health check)"""
     if "health_checker" not in active_threads:
