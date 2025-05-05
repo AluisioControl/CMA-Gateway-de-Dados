@@ -156,11 +156,11 @@ function configurar_interfaces_fisicas() {
     fi
 
     if [[ "$num_iface" -eq 1 || "$num_iface" -eq 2 ]]; then
-        iface="ETH${num_iface} (RJ45)"
+        iface="ETH${num_iface}"
     elif [[ "$num_iface" -eq 3 || "$num_iface" -eq 4 ]]; then
-        iface="ETH${num_iface} (OPTICA)"
+        iface="ETH${num_iface}"
     elif [[ "$num_iface" -eq 5 ]]; then
-        iface="ETHF (RJ45)"
+        iface="ETHF"
     fi
 
     echo ""
