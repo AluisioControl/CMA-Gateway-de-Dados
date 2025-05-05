@@ -1,15 +1,15 @@
 #!/bin/bash
 # Script configurador principal com integração ao config_envs.sh
 
-path_main="/home/cma/CMA-Gateway-de-Dados/src/"
-path_collect="/home/cma/Reconcile-CMA-Gateway-de-Dados/"
-env_cma_gateway="/home/cma/CMA-Gateway-de-Dados/src/.env"
-env_reconcile="/home/cma/Reconcile-CMA-Gateway-de-Dados/.env"
+#path_main="/home/cma/CMA-Gateway-de-Dados/src/"
+#path_collect="/home/cma/Reconcile-CMA-Gateway-de-Dados/"
+#env_cma_gateway="/home/cma/CMA-Gateway-de-Dados/src/.env"
+#env_reconcile="/home/cma/Reconcile-CMA-Gateway-de-Dados/.env"
 
-#path_main="C:/Users/Caval/OneDrive/Documentos/CMA-Gateway-de-Dados/src/"
-#path_collect="C:/Users/Caval/OneDrive/Documentos/Reconcile-CMA-Gateway-de-Dados/"
-#env_cma_gateway="C:/Users/Caval/OneDrive/Documentos/CMA-Gateway-de-Dados/src/.env"
-#env_reconcile="C:/Users/Caval/OneDrive/Documentos/Reconcile-CMA-Gateway-de-Dados/.env"
+path_main="C:/Users/Caval/OneDrive/Documentos/CMA-Gateway-de-Dados/src/"
+path_collect="C:/Users/Caval/OneDrive/Documentos/Reconcile-CMA-Gateway-de-Dados/"
+env_cma_gateway="C:/Users/Caval/OneDrive/Documentos/CMA-Gateway-de-Dados/src/.env"
+env_reconcile="C:/Users/Caval/OneDrive/Documentos/Reconcile-CMA-Gateway-de-Dados/.env"
 
 function exibir_menu() {
     clear
@@ -127,27 +127,42 @@ function ler_variavel() {
 
 
 function configurar_interfaces_fisicas() {
-    echo "🔧 Configurar Interfaces de Rede (ETH0 a ETH4)"
+    echo "🔧 Configurar Interfaces de Rede (ETH1 a ETH5/F)"
     echo ""
     echo "📋 Parâmetros atuais:"
-    for i in {0..4}; do
-        iface="ETH$i"
+    for i in {1..5}; do
+
+        if [[ "$i" -eq 1 || "$i" -eq 2 ]]; then
+            iface="ETH$i (RJ45)"
+        elif [[ "$i" -eq 3 || "$i" -eq 4 ]]; then
+            iface="ETH$i (OPTICA)"
+        elif [[ "$i" -eq 5 ]]; then
+            iface="ETHF (RJ45)"
+        fi
+
         ip=$(grep -E "^${iface}_IP=" "$env_cma_gateway" | cut -d '=' -f2-)
         dhcp=$(grep -E "^${iface}_DHCP=" "$env_cma_gateway" | cut -d '=' -f2-)
         echo "  [$i] - $iface → IP=${ip:-N/D}, DHCP=${dhcp:-N/D}"
     done
 
     echo ""
-    read -p "Digite o número da interface que deseja configurar [0-4] ou 'q' para voltar: " num_iface
+    read -p "Digite o número da interface que deseja configurar [1-5/F] ou 'q' para voltar: " num_iface
     if [[ "$num_iface" == "q" || "$num_iface" == "Q" ]]; then
         return
-    elif ! [[ "$num_iface" =~ ^[0-4]$ ]]; then
+    elif ! [[ "$num_iface" =~ ^[1-5]$ ]]; then
         echo "❌ Entrada inválida."
         read -p "Pressione Enter para continuar..."
         return
     fi
 
-    iface="ETH${num_iface}"
+    if [[ "$num_iface" -eq 1 || "$num_iface" -eq 2 ]]; then
+        iface="ETH${num_iface} (RJ45)"
+    elif [[ "$num_iface" -eq 3 || "$num_iface" -eq 4 ]]; then
+        iface="ETH${num_iface} (OPTICA)"
+    elif [[ "$num_iface" -eq 5 ]]; then
+        iface="ETHF (RJ45)"
+    fi
+
     echo ""
     echo "💻 Configurando $iface ... (Tecle Enter para manter o valor atual)"
 
