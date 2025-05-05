@@ -340,6 +340,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
             name_hdw_name = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.name_hdw
             type_sen_type = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.type
             model_sen_model = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.model_sen
+            model_hdw_model = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.model_hdw
             name_sen_name = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.name_sen
             id_man_id = no_data if not result_datasource_modbus_ip else result_datasource_modbus_ip.id_man
 
@@ -389,7 +390,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                                     "hardware_name": name_hdw_name,
                                     "sap_id": sap_id,
                                     "type": type_sen_type,
-                                    "model": model_sen_model,
+                                    "model": model_hdw_model,
                                     "sensor_id":xid_equip,
                                     "sensor_name": name_sen_name,
                                     "sensor_model": model_sen_model,

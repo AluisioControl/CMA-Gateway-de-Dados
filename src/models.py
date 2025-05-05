@@ -85,6 +85,7 @@ class datasource_modbus_ip(Base):
     name_hdw = Column(String, index=True)
     type = Column(String, index=True)
     model_sen = Column(String, index=True)
+    model_hdw = Column(String, index=True)
     name_sen = Column(String, index=True)
     id_man = Column(Integer, index=True)
 
