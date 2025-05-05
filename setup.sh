@@ -125,63 +125,67 @@ function ler_variavel() {
     done
 }
 
-
 function configurar_interfaces_fisicas() {
-    echo "🔧 Configurar Interfaces de Rede (ETH1 a ETH5/F)"
+    echo "🔧 Configurar Interfaces de Rede (ETH1 a ETHF)"
     echo ""
     echo "📋 Parâmetros atuais:"
-    for i in {1..5}; do
 
-        if [[ "$i" -eq 1 || "$i" -eq 2 ]]; then
-            iface="ETH$i (RJ45)"
-        elif [[ "$i" -eq 3 || "$i" -eq 4 ]]; then
-            iface="ETH$i (OPTICA)"
-        elif [[ "$i" -eq 5 ]]; then
-            iface="ETHF (RJ45)"
-        fi
+    # Mapeia nomes lógicos (apresentação) para reais
+    for i in {0..4}; do
+        iface_real="ETH$i"
+        case $i in
+            0) iface_logico="ETH1 (RJ45)";;
+            1) iface_logico="ETH2 (RJ45)";;
+            2) iface_logico="ETH3 (Óptica)";;
+            3) iface_logico="ETH4 (Óptica)";;
+            4) iface_logico="ETHF (RJ45)";;
+        esac
 
-        ip=$(grep -E "^${iface}_IP=" "$env_cma_gateway" | cut -d '=' -f2-)
-        dhcp=$(grep -E "^${iface}_DHCP=" "$env_cma_gateway" | cut -d '=' -f2-)
-        echo "  [$i] - $iface → IP=${ip:-N/D}, DHCP=${dhcp:-N/D}"
+        ip=$(grep -E "^${iface_real}_IP=" "$env_cma_gateway" | cut -d '=' -f2-)
+        dhcp=$(grep -E "^${iface_real}_DHCP=" "$env_cma_gateway" | cut -d '=' -f2-)
+        echo "  [$i] - $iface_logico → IP=${ip:-N/D}, DHCP=${dhcp:-N/D}"
     done
 
     echo ""
-    read -p "Digite o número da interface que deseja configurar [1-5/F] ou 'q' para voltar: " num_iface
+    read -p "Digite o número da interface que deseja configurar [0-4] ou 'q' para voltar: " num_iface
     if [[ "$num_iface" == "q" || "$num_iface" == "Q" ]]; then
         return
-    elif ! [[ "$num_iface" =~ ^[1-5]$ ]]; then
+    elif ! [[ "$num_iface" =~ ^[0-4]$ ]]; then
         echo "❌ Entrada inválida."
         read -p "Pressione Enter para continuar..."
         return
     fi
 
-    if [[ "$num_iface" -eq 1 || "$num_iface" -eq 2 ]]; then
-        iface="ETH${num_iface}"
-    elif [[ "$num_iface" -eq 3 || "$num_iface" -eq 4 ]]; then
-        iface="ETH${num_iface}"
-    elif [[ "$num_iface" -eq 5 ]]; then
-        iface="ETHF"
-    fi
+    iface_real="ETH${num_iface}"
+
+    case $num_iface in
+        0) iface_logico="ETH1 (eth0 - RJ45)";;
+        1) iface_logico="ETH2 (eth1 - RJ45)";;
+        2) iface_logico="ETH3 (eth2 - Óptica)";;
+        3) iface_logico="ETH4 (eth3 - Óptica)";;
+        4) iface_logico="ETHF (eth4 - RJ45)";;
+    esac
 
     echo ""
-    echo "💻 Configurando $iface ... (Tecle Enter para manter o valor atual)"
+    echo "💻 Configurando $iface_logico ... (Tecle Enter para manter o valor atual)"
 
-    ler_variavel_yn "${iface}_DHCP" "$env_cma_gateway" "Usar DHCP?"
-    ler_variavel_yn "${iface}_DHCP_SERVER" "$env_cma_gateway" "Ativar como Servidor DHCP?"
-    ler_variavel "${iface}_IP" "$env_cma_gateway" "Endereço IP" "ip"
-    ler_variavel "${iface}_MASK" "$env_cma_gateway" "Máscara de Rede" "ip"
-    ler_variavel "${iface}_GW" "$env_cma_gateway" "Gateway" "ip"
-    ler_variavel "${iface}_DNS" "$env_cma_gateway" "DNS (separado por espaço)" "ip_list"
-    ler_variavel "${iface}_DHCP_RANGE_START" "$env_cma_gateway" "DHCP Início do Range" "ip"
-    ler_variavel "${iface}_DHCP_RANGE_END" "$env_cma_gateway" "DHCP Fim do Range" "ip"
+    ler_variavel_yn "${iface_real}_DHCP" "$env_cma_gateway" "Usar DHCP?"
+    ler_variavel_yn "${iface_real}_DHCP_SERVER" "$env_cma_gateway" "Ativar como Servidor DHCP?"
+    ler_variavel "${iface_real}_IP" "$env_cma_gateway" "Endereço IP" "ip"
+    ler_variavel "${iface_real}_MASK" "$env_cma_gateway" "Máscara de Rede" "ip"
+    ler_variavel "${iface_real}_GW" "$env_cma_gateway" "Gateway" "ip"
+    ler_variavel "${iface_real}_DNS" "$env_cma_gateway" "DNS (separado por espaço)" "ip_list"
+    ler_variavel "${iface_real}_DHCP_RANGE_START" "$env_cma_gateway" "DHCP Início do Range" "ip"
+    ler_variavel "${iface_real}_DHCP_RANGE_END" "$env_cma_gateway" "DHCP Fim do Range" "ip"
 
     echo ""
     echo "🚀 Aplicando nova configuração de rede..."
     sudo /home/cma/CMA-Gateway-de-Dados/scripts/static_ip_all_final.sh
-    echo "✅ Configurações de $iface atualizadas com sucesso."
+    echo "✅ Configurações de $iface_logico atualizadas com sucesso."
     read -p "Pressione Enter para continuar..."
     sleep 2    
 }
+
 
 function configurar_reconcile() {
     echo "Configurar CMA WEB... (Tecle Enter para manter a informação atual)"
