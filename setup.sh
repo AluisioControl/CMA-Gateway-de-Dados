@@ -197,6 +197,7 @@ function configurar_reconcile() {
     if [ -d "$path_collect" ]; then
         cd "$path_collect" || exit 1
         uv run python -m app.collect_cma_web
+        uv run python -m app.reconcile2.main
     else
         echo "❌ Caminho não encontrado: $path_collect"
     fi
