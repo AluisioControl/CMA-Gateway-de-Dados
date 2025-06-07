@@ -27,6 +27,7 @@ from rabbitmq import *
 from scadalts import *
 from logger import *
 from dotenv import load_dotenv
+import concurrent.futures
 
 # Carregando as variáveis de ambiente do arquivo .env
 load_dotenv()
@@ -510,52 +511,34 @@ def send_data_to_mqtt(content_data):
             content_data=content_data,
             sended=False
         )
-        session.execute(query)
+        result = session.execute(query)
+        persistence_id = result.inserted_primary_key[0]
         session.commit()  # Confirma a transação para inserir no banco
         print("Registro inserido na fila com sucesso!")
 
         # 2 - Percorre a tabela e envia o JSON onde sended = False.
         # Se o envio for sucesso altera o campo sended = True
-        query = select(persistence).where(persistence.sended == False)
-        items = session.execute(query).scalars().all()
+        # query = select(persistence).where(persistence.sended == False)
+        # items = session.execute(query).scalars().all()
 
-        for item in items:
-            #print(f"Enviando conteúdo: {item.content_data}")
-            print("Enviando conteúdo para mqtt...")
+        # for item in items:
+        #print(f"Enviando conteúdo: {item.content_data}")
+        print("Enviando conteúdo para mqtt...")
 
-            ntries = 3
-            current_try = 1
-            while (ntries + 1 > current_try):
-                print("Tentativa de envio", current_try, "de", ntries)
+        send_success = send_rabbitmq(content_data)
+        if not send_success:
+            print("Falha ao enviar mensagem para o RabbitMQ.")
+            logger.error("Falha ao enviar mensagem para o RabbitMQ.")
+            logger.error("Falha ao enviar mensagem para o MQTT. A mensagem foi guardada em fila e será enviada posteriormente!")
+            return
 
-                if check_rabbitmq_connection(): # Verifica se o RabbitMg está online antes de enviar
-                    print("Servidor RabbitMQ está acessível!")
-                    status = send_rabbitmq(content_data)
-                    if status:
-                        send_success = True
-                        break
+        # Atualiza o campo sended para True
+        query = persistence.__table__.delete().where(
+            persistence.__table__.c.id == persistence_id
+        )
+        result = session.execute(query)
+        session.commit()
 
-                else:
-                    send_success = False
-                    print("Não foi possível conectar ao servidor RabbitMQ.")
-                    logger.error("Não foi possível conectar ao servidor RabbitMQ.")
-                    current_try += 1
-                    time.sleep(2)
-
-            if send_success:
-                # Atualiza o campo sended para True
-                query = persistence.__table__.delete().where(
-                    persistence.__table__.c.id == item.id
-                )
-                result = session.execute(query)
-                session.commit()
-                if result:
-                    print("Exclusão de registro temporário concluído com sucesso!\n\n\n")
-                else:
-                    print("Falha ao excluir registro temporário!")
-
-            else:
-                print("Falha ao enviar mensagem para o MQTT. A mensagem foi guardada em fila e será enviada posteriormente!")
 
     except SQLAlchemyError as e:
         session.rollback()  # Desfaz transações em caso de erro
@@ -700,14 +683,40 @@ def execute_sensors_modbus(xid_modbus, interval, stop_event):
         if STATUS_SCADA == "ONLINE":
             print(f"\nEnviando para MQTT dados xid_sensor mdbus:{xid_modbus} a cada {interval/60} minuto(s)")
             list_xid_sensor_modbus = get_xid_sensor_from_eqp_modbus(xid_modbus)
+
+            with open("teste.txt", "a") as log_file:
+                log_file.write(f"\n\n----------\n\n")
+                # total da lista
+                log_file.write(f"Total de sensores no modbus ({xid_modbus}): {len(list_xid_sensor_modbus)}\n")
             
             agora = datetime.now()
             print(agora.strftime("%Y-%m-%d %H:%M:%S"))  # Exemplo: 2025-03-16 14:32:15
-            for xid_sensor_modbus in list_xid_sensor_modbus:
-                print("Enviando para mqtt dados do sensor modbus: ", xid_sensor_modbus)
-                payload = process_json_datapoints(xid_sensor_modbus, "MODBUS")
-                print("PAYLOAD A SER ENVIADO PARA MQTT=", payload)
-                send_data_to_mqtt(payload)
+            
+            with open("teste.txt", "a") as log_file:
+                log_file.write(f"Enviando dados do sensor modbus: {xid_modbus} em {agora.strftime('%Y-%m-%d %H:%M:%S')}\n")
+
+            # Limita a 20 processos simultâneos
+            with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+                def process_sensor(xid_sensor_modbus):
+                    print("Enviando para mqtt dados do sensor modbus: ", xid_sensor_modbus)
+                    payload = process_json_datapoints(xid_sensor_modbus, "MODBUS")
+                    print("PAYLOAD A SER ENVIADO PARA MQTT=", payload)
+                    send_data_to_mqtt(payload)
+                
+                # Submete todas as tarefas para execução paralela
+                futures = [executor.submit(process_sensor, xid_sensor) for xid_sensor in list_xid_sensor_modbus]
+                
+                # Aguarda todas as tarefas terminarem
+                concurrent.futures.wait(futures)
+            
+            final = datetime.now()
+            with open("teste.txt", "a") as log_file:
+                log_file.write(f"Dados do sensor modbus: {xid_modbus} enviados com sucesso em {agora.strftime('%Y-%m-%d %H:%M:%S')}\n")
+                #  log do tempo decorrido do agora até final
+                log_file.write(f"Tempo decorrido: {final - agora}\n\n")
+                # log quantos processo foram executados por segundo
+                log_file.write(f"Processos executados por segundo (modbus: {xid_modbus}): {len(futures) / (final - agora).total_seconds()}\n")
+            print(f"Dados do sensor modbus: {xid_modbus} enviados com sucesso!")
 
         else:
             print(f"Comunicação com SCADA perdida ao enviar dados xid_sensor modbus:{xid_modbus}!")

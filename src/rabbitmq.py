@@ -88,7 +88,7 @@ def send_rabbitmq(payload=str):
             host=RABBIT_HOST, port=RABBIT_PORT, credentials=credentials)
         connection = pika.BlockingConnection(connection_params)
         channel = connection.channel()
-        channel.queue_declare(queue=RABBIT_TOPICO)
+        channel.queue_declare(queue=RABBIT_TOPICO, durable=True)
 
         channel.basic_publish(
             exchange=RABBIT_CAMINHO, routing_key=RABBIT_CHAVE, body=payload)
