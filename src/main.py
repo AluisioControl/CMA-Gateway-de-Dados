@@ -475,6 +475,39 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
     finally:
         session.close()
 
+
+def process_persistence():
+    """
+    Função que processa a persistência de dados no banco de dados.
+    Percorre a tabela de persistência e envia os dados para o RabbitMQ.
+    Se o envio for bem-sucedido, remove o item da tabela de persistência.
+    """
+    session = SessionLocal()
+    try:
+        query = select(persistence).where(persistence.sended == False)
+        items = session.execute(query).scalars().all()
+        
+        for item in items:
+            content_data = item.content_data
+            success = send_data_to_mqtt(content_data)
+            if success:
+                # Remove o item da tabela de persistência
+                delete_query = persistence.__table__.delete().where(
+                    persistence.__table__.c.id == item.id
+                )
+                session.execute(delete_query)
+                session.commit()
+                logger.info(f"Item {item.id} removido da tabela de persistência após envio bem-sucedido.")
+
+    except SQLAlchemyError as e:
+        session.rollback()  # Desfaz transações em caso de erro
+        logger.error(f"Erro no banco de dados: {str(e)}")
+        return {"error": f"Erro no banco de dados: {str(e)}"}
+
+    finally:
+        session.close()
+
+
 def send_data_to_mqtt(content_data):
 
     """
@@ -497,7 +530,6 @@ def send_data_to_mqtt(content_data):
     2. Percorre a tabela e envia o JSON onde sended = False.
        Se o envio for sucesso altera o campo sended = True
     """
-    print("send_data_to_mqtt -> content_data = ", content_data)
     if  content_data == "":
         print("Nenhum conteúdo para enviar ao MQTT!")
         return
@@ -505,16 +537,6 @@ def send_data_to_mqtt(content_data):
     session = SessionLocal()
     try:
         send_success = False
-        # 1 - Armazena o JSON no campo content_data
-        # e atribui False no campo sended
-        query = persistence.__table__.insert().values(
-            content_data=content_data,
-            sended=False
-        )
-        result = session.execute(query)
-        persistence_id = result.inserted_primary_key[0]
-        session.commit()  # Confirma a transação para inserir no banco
-        print("Registro inserido na fila com sucesso!")
 
         # 2 - Percorre a tabela e envia o JSON onde sended = False.
         # Se o envio for sucesso altera o campo sended = True
@@ -527,17 +549,18 @@ def send_data_to_mqtt(content_data):
 
         send_success = send_rabbitmq(content_data)
         if not send_success:
-            print("Falha ao enviar mensagem para o RabbitMQ.")
-            logger.error("Falha ao enviar mensagem para o RabbitMQ.")
-            logger.error("Falha ao enviar mensagem para o MQTT. A mensagem foi guardada em fila e será enviada posteriormente!")
-            return
 
-        # Atualiza o campo sended para True
-        query = persistence.__table__.delete().where(
-            persistence.__table__.c.id == persistence_id
-        )
-        result = session.execute(query)
-        session.commit()
+            # 1 - Armazena o JSON no campo content_data
+            # e atribui False no campo sended
+            query = persistence.__table__.insert().values(
+                content_data=content_data,
+                sended=False
+            )
+            result = session.execute(query)
+            session.commit()  # Confirma a transação para inserir no banco
+            msg = "Falha ao enviar mensagem para o RabbitMQ. A mensagem foi guardada em fila e será enviada posteriormente!"
+            print(msg)
+            logger.error(msg)
 
 
     except SQLAlchemyError as e:
@@ -695,8 +718,8 @@ def execute_sensors_modbus(xid_modbus, interval, stop_event):
             with open("teste.txt", "a") as log_file:
                 log_file.write(f"Enviando dados do sensor modbus: {xid_modbus} em {agora.strftime('%Y-%m-%d %H:%M:%S')}\n")
 
-            # Limita a 20 processos simultâneos
-            with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+            # Limita a 10 processos simultâneos
+            with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
                 def process_sensor(xid_sensor_modbus):
                     print("Enviando para mqtt dados do sensor modbus: ", xid_sensor_modbus)
                     payload = process_json_datapoints(xid_sensor_modbus, "MODBUS")
@@ -708,6 +731,8 @@ def execute_sensors_modbus(xid_modbus, interval, stop_event):
                 
                 # Aguarda todas as tarefas terminarem
                 concurrent.futures.wait(futures)
+            # Processa a persistência de dados
+            process_persistence()
             
             final = datetime.now()
             with open("teste.txt", "a") as log_file:
