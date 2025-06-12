@@ -46,33 +46,26 @@ def get_cookie_from_url(url):
         status_code = curl.getinfo(pycurl.RESPONSE_CODE)
         headers = header_buffer.getvalue().decode('utf-8').splitlines()
 
-        print(f"Status Code ao obter cookie: {status_code}")
-        #print(f"Cabeçalhos recebidos:\n{headers}")
+        logger.info(f"Status Code ao obter cookie: {status_code}")
         logger.info(f"Status code da autenticação SCADA: {status_code}")
         cookies = [line for line in headers if 'Set-Cookie' in line]
         
         if status_code == 200 and cookies:
-            #print(f"Cookies brutos encontrados: {cookies}")
 
             match = re.search(r"Set-Cookie:\s*([^;]+)", cookies[0], re.IGNORECASE)
             if match:
                 cookie = match.group(1)
                 cookie_cache["value"] = cookie
                 cookie_cache["expires_at"] = time.time() + 3600  # 1 hora
-
-                print(f"Novo cookie armazenado: {cookie_cache['value']}, expira em {time.ctime(cookie_cache['expires_at'])}")
                 logger.warning(f"Novo cookie armazenado: {cookie_cache['value']}, expira em {time.ctime(cookie_cache['expires_at'])}")
                 logger.info(f"Novo cookie armazenado: {cookie}")
                 return cookie
             else:
-                print("Erro ao extrair o cookie do cabeçalho.")
                 logger.error("Erro ao extrair o cookie do cabeçalho.")
         else:
-            print("Nenhum Set-Cookie encontrado ou falha na autenticação.")
             logger.error("Nenhum Set-Cookie encontrado ou falha na autenticação.")
             return None
     except Exception as e:
-        #print(f"Erro ao obter cookie: {e}")
         logger.error(f"Erro ao obter cookie: {e}")
         return None
     finally:
@@ -93,21 +86,17 @@ def get_with_cookie(url, cookie, xid_sensor):
         response_data = buffer.getvalue().decode('utf-8')
         logger.info(f"GET {url} retornou status {status_code}")
 
-        print(f"Status Code GET: {status_code}")
-        #print(f"Resposta bruta: {response_data}")
+        logger.info(f"Status Code GET: {status_code}")
 
         if status_code != 200:
-            print(f"Erro ao buscar dados do xid_sensor {xid_sensor}. Status: {status_code}")
             logger.warning(f"Erro ao buscar dados do sensor {xid_sensor}: status {status_code}")
             return None
 
         return json.loads(response_data) if response_data else None
     except json.JSONDecodeError:
-        print("Erro ao decodificar JSON. Resposta vazia ou inválida.")
         logger.error("Erro ao decodificar JSON de resposta.")
         return None
     except Exception as e:
-        print(f"Erro na requisição GET: {e}")
         logger.error(f"Erro na requisição GET: {e}")
         return None
     finally:
@@ -117,15 +106,13 @@ def get_with_cookie(url, cookie, xid_sensor):
 def get_valid_cookie():
     """Verifica se o cookie armazenado ainda é válido, senão obtém um novo."""
     current_time = time.time()
-    print(f"Tempo atual: {current_time} ({time.ctime(current_time)})")
-    print(f"Tempo de expiração do cookie: {cookie_cache['expires_at']} ({time.ctime(cookie_cache['expires_at'])})")
+    logger.info(f"Tempo atual: {current_time} ({time.ctime(current_time)})")
+    logger.info(f"Tempo de expiração do cookie: {cookie_cache['expires_at']} ({time.ctime(cookie_cache['expires_at'])})")
     
     if cookie_cache["value"] and current_time < cookie_cache["expires_at"]:
-        print(f"Usando cookie armazenado: {cookie_cache['value']}")
-        logger.info("Usando cookie armazenado.")
+        logger.info(f"Usando cookie armazenado: {cookie_cache['value']}")
         return cookie_cache["value"]
     
-    print("Cookie expirado ou inexistente. Renovando...")
     logger.info("Cookie expirado ou inexistente. Solicitando novo...")
     return get_cookie_from_url(AUTH_URL)
 
@@ -135,13 +122,11 @@ def get_json_data(xid_sensor):
     cookie = get_valid_cookie()
     if cookie:
         url_get_value = f"{URL_BASE}/Scada-LTS/api/point_value/getValue/{xid_sensor}"
-        print(f"Requisição GET para: {url_get_value} com cookie {cookie}")
+        logger.info(f"Requisição GET para: {url_get_value} com cookie {cookie}")
         logger.info(f"Buscando valor do sensor {xid_sensor} via SCADA-LTS")
         response_json = get_with_cookie(url_get_value, cookie, xid_sensor)
-        #print("response=", response_json)
         return response_json
     else:
-        print("Falha ao buscar os dados do xid_sensor:", xid_sensor)
         logger.error(f"Falha ao buscar os dados do xid_sensor: {xid_sensor}")
         return "error"
 
@@ -164,7 +149,6 @@ def auth_ScadaLTS():
     """
 
     if not username or not password:
-        print("Erro: Credenciais de acesso ao SCADA-LTS não encontradas no arquivo .env")
         logger.error("Erro: Credenciais de acesso ao SCADA-LTS não encontradas no arquivo .env")
         return
     try:
@@ -181,11 +165,8 @@ def auth_ScadaLTS():
         c.close()
         #response = buffer.getvalue().decode('utf-8')
         logger.info("Autenticação SCADA-LTS realizada com sucesso.")
-        # print(response)
-        #print("Atenticado no SCADA-LTS!")
         return True 
     except ConnectionError as e:
-        print(f"Erro ao tentar autenticar no SCADA-LTS: {e}")
         logger.error(f"Erro ao tentar autenticar no SCADA-LTS: {e}")
         return False 
 
@@ -214,9 +195,7 @@ def send_data_to_scada(raw_data):
         c.setopt(c.WRITEDATA, buffer)
         c.perform()
         c.close()
-        #response = buffer.getvalue().decode('utf-8')
-        #print(response)
         logger.info("Dados enviados para o SCADA-LTS via EmportDwr.")
-        print("send_data_to_scada", raw_data)
+        logger.info("send_data_to_scada", raw_data)
     except ConnectionError as e:
         logger.error(f"Erro ao enviar dados ao SCADA-LTS: {e}")

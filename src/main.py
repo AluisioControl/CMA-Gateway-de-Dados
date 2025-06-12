@@ -91,7 +91,7 @@ def thr_get_system_info():
     A função executa em loop infinito e exibe as informações
     a cada 15 segundos.
     """
-    print("Iniciando monitoramento de informações do sistema...")
+    logger.info("Iniciando monitoramento de informações do sistema...")
     while True:
         # Memória RAM
         ram = psutil.virtual_memory()
@@ -118,25 +118,25 @@ def thr_get_system_info():
         network_data = get_network_info()
 
         # Exibir informações formatadas
-        print("\n===== INFORMAÇÕES DO SISTEMA =====")
-        print(
+        logger.info("\n===== INFORMAÇÕES DO SISTEMA =====")
+        logger.info(
             f"Memória RAM: {used_ram:.2f} GB / {total_ram:.2f} GB ({ram_percent}%)")
-        print(f"Uso do Processador: {cpu_usage}%")
-        print(
+        logger.info(f"Uso do Processador: {cpu_usage}%")
+        logger.info(
             f"Espaço do HD: {used_disk:.2f} GB usados / {total_disk:.2f} GB ({disk_percent}%)")
-        print(
+        logger.info(
             f"Tempo de Funcionamento: {int(uptime_hours)}h {int(uptime_minutes)}min")
 
         if network_data:
-            print("\n=====  INFORMAÇÕES DA REDE   =====")
-            print(f"Interface: {network_data['Interface']}")
-            print(f"IP: {network_data['IP']}")
-            print(f"Máscara: {network_data['Máscara']}")
-            print(f"Status: {network_data['Status']}")
-            print(f"Velocidade: {network_data['Velocidade']}\n")
+            logger.info("\n=====  INFORMAÇÕES DA REDE   =====")
+            logger.info(f"Interface: {network_data['Interface']}")
+            logger.info(f"IP: {network_data['IP']}")
+            logger.info(f"Máscara: {network_data['Máscara']}")
+            logger.info(f"Status: {network_data['Status']}")
+            logger.info(f"Velocidade: {network_data['Velocidade']}\n")
         else:
-            print("\n=====  INFORMAÇÕES DA REDE   =====")
-            print("Nenhuma conexão de rede com cabo detectada.\n")
+            logger.info("\n=====  INFORMAÇÕES DA REDE   =====")
+            logger.info("Nenhuma conexão de rede com cabo detectada.\n")
 
 
         payload = {
@@ -167,7 +167,7 @@ def thr_get_system_info():
             }
         }
         payload = json.dumps(payload, indent=4, ensure_ascii=False)
-        send_data_to_mqtt(payload)
+        send_data_to_mqtt(payload, "healthcheck")
         time.sleep(int(HEALTH_SYSTEM_CHECK_INTERVAL))
 
 
@@ -359,19 +359,15 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
           
        
         if xid_sensor != no_data:
-            #print("Entrando no if xid_sensor\n")
             extracted_value = get_json_data(xid_sensor) #retorne o payload da api para extrair o value ou retorna none            
             extracted_value = parse_json_response(extracted_value, 'value') 
-            print("Extracted value: ", extracted_value)
 
-            if extracted_value != None:
-                #print("Entrando no get_json_data(xid_sensor)\n")    
+            if extracted_value != None:  
                 tags_equipamento = no_data if not result_eqp_tags else result_eqp_tags.xid_equip
                 xid_eqp_tags = fetch_name_value_pairs(eqp_tags, 'xid_equip', tags_equipamento)
                 tag_sensor = no_data if not result_dp_tags else result_dp_tags.xid_sensor
                 xid_dp_tags = fetch_name_value_pairs(dp_tags, 'xid_sensor', tag_sensor)
                 timestamp = datetime.now().timestamp()
-                #result=None #Se result é atribuído como None após primeiro resultado válido como os demais procederão corretamente?
  
                 try:
                         response_data = {
@@ -420,9 +416,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                         }
                         result = json.dumps(response_data, indent=4, ensure_ascii=False)
                         return result
-                        #print("result = ", result)
                 except:
-                        print("Erro ao gerar JSON com dados do xid_sensor", xid_sensor)
                         logger.error(f"Erro ao gerar JSON com dados do xid_sensor {xid_sensor}")
                         payload = {
                         "xid_error": {
@@ -434,7 +428,6 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                 return result
                 
             elif extracted_value == None:
-                    print(f"Valor de xid_sensor: {xid_sensor} = None. Um report será enviado.")
                     logger.warning(f"Valor de xid_sensor: {xid_sensor} = None. Um report será enviado.")
                     payload = {
                         "xid_error": {
@@ -444,11 +437,7 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
 
                     result = json.dumps(payload, indent=4, ensure_ascii=False)
                     return result
-
-                    #send_data_to_mqtt(payload)   #send_data_to_mqtt(payload) é chamado logo após obter resultado dessa função               
-                    #return result
             else:
-                print("Erro ao obter dados do xid_sensor", xid_sensor, "no Sacada-LTS!")
                 logger.error(f"Erro ao obter dados do xid_sensor {xid_sensor} no Sacada-LTS!")
                 payload = {
                         "xid_error": {
@@ -489,7 +478,7 @@ def process_persistence():
         
         for item in items:
             content_data = item.content_data
-            success = send_data_to_mqtt(content_data)
+            success = send_data_to_mqtt(content_data, "values")
             if success:
                 # Remove o item da tabela de persistência
                 delete_query = persistence.__table__.delete().where(
@@ -508,10 +497,10 @@ def process_persistence():
         session.close()
 
 
-def send_data_to_mqtt(content_data):
+def send_data_to_mqtt(content_data, data_type=str):
 
     """
-    Função que armazena e envia um JSON para o RabbitMQ.
+    Função que armazena e envia um JSON para o Rabbi,tMQ.
 
     Parameters
     ----------
@@ -531,7 +520,7 @@ def send_data_to_mqtt(content_data):
        Se o envio for sucesso altera o campo sended = True
     """
     if  content_data == "":
-        print("Nenhum conteúdo para enviar ao MQTT!")
+        logger.warning("Nenhum conteúdo para enviar ao MQTT!")
         return
 
     session = SessionLocal()
@@ -544,10 +533,9 @@ def send_data_to_mqtt(content_data):
         # items = session.execute(query).scalars().all()
 
         # for item in items:
-        #print(f"Enviando conteúdo: {item.content_data}")
-        print("Enviando conteúdo para mqtt...")
+        logger.info("Enviando conteúdo para mqtt...")
 
-        send_success = send_rabbitmq(content_data)
+        send_success = send_rabbitmq(content_data, data_type)
         if not send_success:
 
             # 1 - Armazena o JSON no campo content_data
@@ -559,7 +547,6 @@ def send_data_to_mqtt(content_data):
             result = session.execute(query)
             session.commit()  # Confirma a transação para inserir no banco
             msg = "Falha ao enviar mensagem para o RabbitMQ. A mensagem foi guardada em fila e será enviada posteriormente!"
-            print(msg)
             logger.error(msg)
 
 
@@ -647,7 +634,7 @@ def get_xid_sensor_from_eqp_modbus(xid_equip_modbus):
         query = select(datapoints_modbus_ip.xid_sensor).where(
             datapoints_modbus_ip.xid_equip == xid_equip_modbus)
         result = session.execute(query).scalars().all()
-        print("xid_sensor modbus: ", result)
+        logger.info("xid_sensor modbus: ", result)
         return result
     except Exception as e:
         logger.error(
@@ -696,35 +683,35 @@ def execute_sensors_modbus(xid_modbus, interval, stop_event):
     returns:
         None
     """
-    print("entrou no execute_sensors_modbus...")
+    logger.info("execute_sensors_modbus...")
     while not stop_event.is_set():
         for _ in range(int(interval * 10)):  # delay de 0.1s
             if stop_event.is_set():
-                print(f"Thread de envio xid_sensor modbus:{xid_modbus} finalizada.")
+                logger.info(f"Thread de envio xid_sensor modbus:{xid_modbus} finalizada.")
                 return  # Sai imediatamente se o evento foi acionado
             time.sleep(0.1)
         if STATUS_SCADA == "ONLINE":
-            print(f"\nEnviando para MQTT dados xid_sensor mdbus:{xid_modbus} a cada {interval/60} minuto(s)")
+            logger.info(f"\nEnviando para MQTT dados xid_sensor mdbus:{xid_modbus} a cada {interval/60} minuto(s)")
             list_xid_sensor_modbus = get_xid_sensor_from_eqp_modbus(xid_modbus)
 
-            with open("teste.txt", "a") as log_file:
-                log_file.write(f"\n\n----------\n\n")
-                # total da lista
-                log_file.write(f"Total de sensores no modbus ({xid_modbus}): {len(list_xid_sensor_modbus)}\n")
+            # with open("teste.txt", "a") as log_file:
+            #     log_file.write(f"\n\n----------\n\n")
+            #     # total da lista
+            #     log_file.write(f"Total de sensores no modbus ({xid_modbus}): {len(list_xid_sensor_modbus)}\n")
             
-            agora = datetime.now()
-            print(agora.strftime("%Y-%m-%d %H:%M:%S"))  # Exemplo: 2025-03-16 14:32:15
+            # agora = datetime.now()
+            # logger.info(agora.strftime("%Y-%m-%d %H:%M:%S"))  # Exemplo: 2025-03-16 14:32:15
             
-            with open("teste.txt", "a") as log_file:
-                log_file.write(f"Enviando dados do sensor modbus: {xid_modbus} em {agora.strftime('%Y-%m-%d %H:%M:%S')}\n")
+            # with open("teste.txt", "a") as log_file:
+            #     log_file.write(f"Enviando dados do sensor modbus: {xid_modbus} em {agora.strftime('%Y-%m-%d %H:%M:%S')}\n")
 
             # Limita a 10 processos simultâneos
             with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
                 def process_sensor(xid_sensor_modbus):
-                    print("Enviando para mqtt dados do sensor modbus: ", xid_sensor_modbus)
+                    logger.info("Enviando para mqtt dados do sensor modbus: ", xid_sensor_modbus)
                     payload = process_json_datapoints(xid_sensor_modbus, "MODBUS")
-                    print("PAYLOAD A SER ENVIADO PARA MQTT=", payload)
-                    send_data_to_mqtt(payload)
+                    logger.info("PAYLOAD A SER ENVIADO PARA MQTT=", payload)
+                    send_data_to_mqtt(payload, "values")
                 
                 # Submete todas as tarefas para execução paralela
                 futures = [executor.submit(process_sensor, xid_sensor) for xid_sensor in list_xid_sensor_modbus]
@@ -734,19 +721,23 @@ def execute_sensors_modbus(xid_modbus, interval, stop_event):
             # Processa a persistência de dados
             process_persistence()
             
-            final = datetime.now()
-            with open("teste.txt", "a") as log_file:
-                log_file.write(f"Dados do sensor modbus: {xid_modbus} enviados com sucesso em {agora.strftime('%Y-%m-%d %H:%M:%S')}\n")
-                #  log do tempo decorrido do agora até final
-                log_file.write(f"Tempo decorrido: {final - agora}\n\n")
-                # log quantos processo foram executados por segundo
-                log_file.write(f"Processos executados por segundo (modbus: {xid_modbus}): {len(futures) / (final - agora).total_seconds()}\n")
-            print(f"Dados do sensor modbus: {xid_modbus} enviados com sucesso!")
+            # Log do tempo de execução e desempenho do envio dos sensores Modbus
+            #final = datetime.now()
+            #with open("teste.txt", "a") as log_file:
+                # # Dados do sensor modbus enviados com sucesso em
+                # log_file.write(f"Dados do sensor modbus: {xid_modbus} enviados com sucesso em {final.strftime('%Y-%m-%d %H:%M:%S')}\n")
+                # # Tempo decorrido entre início e fim do envio
+                # log_file.write(f"Tempo decorrido: {final - agora}\n\n")
+                # # Taxa de execução dos processos por segundo
+                # if (final - agora).total_seconds() > 0:
+                #     log_file.write(f"Processos executados por segundo (modbus: {xid_modbus}): {len(futures) / (final - agora).total_seconds()}\n")
+                # else:
+                #     log_file.write("Tempo decorrido muito curto para calcular processos por segundo.\n")
+            logger.info(f"Dados do sensor modbus: {xid_modbus} enviados com sucesso!")
 
         else:
-            print(f"Comunicação com SCADA perdida ao enviar dados xid_sensor modbus:{xid_modbus}!")
             logger.error(f"Comunicação com SCADA perdida ao enviar dados xid_sensor modbus:{xid_modbus}!")
-        time.sleep(1)
+        time.sleep(0.1)
 
 
 def execute_sensors_dnp3(xid_dnp3, interval, stop_event):
@@ -766,18 +757,17 @@ def execute_sensors_dnp3(xid_dnp3, interval, stop_event):
     while not stop_event.is_set():
         for _ in range(int(interval * 10)):  # delay de 0.1s
             if stop_event.is_set():
-                print(f"Thread de envio xid_sensor dnp3:{xid_dnp3} finalizada.")
+                logger.info(f"Thread de envio xid_sensor dnp3:{xid_dnp3} finalizada.")
                 return  # Sai imediatamente se o evento foi acionado
             time.sleep(0.1)
         if STATUS_SCADA == "ONLINE":
-            print(f"\nEnviando para MQTT dados xid_sensor dnp3:{xid_dnp3} a cada {interval} segundo(s)")
+            logger.info(f"\nEnviando para MQTT dados xid_sensor dnp3:{xid_dnp3} a cada {interval} segundo(s)")
             list_xid_sensor_dnp3 = get_xid_sensor_from_eqp_dnp3(xid_dnp3)
             for xid_sensor_dnp3 in list_xid_sensor_dnp3:
-                print("Enviando para mqtt dados do sensor dnp3: ", xid_sensor_dnp3)
+                logger.info("Enviando para mqtt dados do sensor dnp3: ", xid_sensor_dnp3)
                 payload = process_json_datapoints(xid_sensor_dnp3, "DNP3")
-                send_data_to_mqtt(payload)
+                send_data_to_mqtt(payload, "values")
         else:
-            print(f"Comunicação com SCADA perdida ao enviar dados xid_sensor DNP3:{xid_dnp3}!")
             logger.error(f"Comunicação com SCADA perdida ao enviar dados xid_sensor DNP3:{xid_dnp3}!")
         time.sleep(1)
         
@@ -791,12 +781,14 @@ def thr_check_server_online(host: str, port: int, servername: str):
     Se o servidor estiver online, muda o valor da variável STATUS_SCADA para "ONLINE".
     Se o servidor estiver offline, muda o valor da variável  STATUS_SCADA para "OFFLINE".
     """
-    print(f"Iniciando verificação de status do servidor {host}:{port} ...")
+    logger.info(f"Iniciando verificação de status do servidor {host}:{port} ...")
+
+    global STATUS_AUTH_SCADA
+    global STATUS_SCADA
+    global service_status
+
     while True:
         try:
-            
-            global STATUS_SCADA
-            global service_status
             with socket.create_connection((host, port), timeout=5):
                 if port == 8080:
                     STATUS_SCADA = "ONLINE"
@@ -813,10 +805,9 @@ def thr_check_server_online(host: str, port: int, servername: str):
         if conexao == "ONLINE":
             STATUS_AUTH_SCADA = auth_ScadaLTS()
     
-        print("\n=====   CONEXÃO COM SCADA    =====")
-        print("["+servername+"]:", conexao)
-        print("Status de autenticação com SCADA:", STATUS_AUTH_SCADA)
-        print("\n")
+        logger.info("\n=====   CONEXÃO COM SCADA    =====")
+        logger.info("["+servername+"]:", conexao)
+        logger.info("Status de autenticação com SCADA:", STATUS_AUTH_SCADA)
 
         payload = {
             "scada_lts": {
@@ -826,7 +817,7 @@ def thr_check_server_online(host: str, port: int, servername: str):
         }
 
         payload = json.dumps(payload, indent=4, ensure_ascii=False)
-        #send_data_to_mqtt(payload)
+        send_data_to_mqtt(payload, "healthcheck")
         logger.info("Enviando payload status de conexão SACADA-LTS para RabbitMQ...")
              
         time.sleep(int(STATUS_SERVER_CHECK_INTERVAL))
@@ -853,7 +844,7 @@ def thr_start_routines_sensor(datasource, protocol):
     
     # Mapeia funções conforme o protocolo
     execute_sensors_func = execute_sensors_modbus if protocol == "modbus" else execute_sensors_dnp3
-    print(f"Iniciando as rotinas do sensor {protocol}...")
+    logger.info(f"Iniciando as rotinas do sensor {protocol}...")
     while True:
 
         time_list = get_periods_eqp(datasource, protocol)
@@ -869,7 +860,7 @@ def thr_start_routines_sensor(datasource, protocol):
                 if old_interval == interval:
                     continue
 
-                print(f"Reiniciando {protocol} sensor {id_} com novo intervalo...")
+                logger.info(f"Reiniciando {protocol} sensor {id_} com novo intervalo...")
                 proccess_map[id_][1].set()  # Aciona o evento de parada
                 proccess_map[id_][0].join()  # Aguarda o término da thread
                 del proccess_map[id_]
@@ -883,12 +874,11 @@ def thr_start_routines_sensor(datasource, protocol):
         # Verifica se alguma thread precisa ser encerrada
         for id_ in list(proccess_map.keys()):
             if id_ not in active_ids:
-                print(f"Encerrando {protocol} sensor {id_}...")
+                logger.info(f"Encerrando {protocol} sensor {id_}...")
                 proccess_map[id_][1].set()  # Aciona o evento de parada
                 proccess_map[id_][0].join()  # Aguarda o término da thread
                 del proccess_map[id_]
-        #print("Processos de sensores rodando no momento: ", len(proccess_map))
-        time.sleep(1)
+        time.sleep(0.1)
 
 
 # =======================================================================
@@ -904,34 +894,34 @@ def start_main_threads():
         active_threads["process_scada"] = process_scada  # Armazena a referência da thread
         process_scada.start()
     
-    '''
+    
     """Inicia os processos para monitorar o sistema (health check)"""
     if "health_checker" not in active_threads:
         health_checker = threading.Thread(target=thr_get_system_info, args=(), daemon = True)
         active_threads["health_checker"] = health_checker  # Armazena a referência da thread
         health_checker.start()
-    '''
+    
     """Inicia os processos de comunicação com Scada-LTS e envio de dados para MQTT"""
     
     if "modbus_thread" not in active_threads:
         modbus_thread = threading.Thread(target=thr_start_routines_sensor, args=(datasource_modbus_ip,"modbus"), daemon=True)
         active_threads["modbus_thread"] = modbus_thread  # Armazena a referência da thread
         modbus_thread.start()
-    '''
+    
     if "dnp3_thread" not in active_threads:
         dnp3_thread = threading.Thread(target=thr_start_routines_sensor, args=(datasource_dnp3,"dnp3"), daemon=True)
         active_threads["dnp3_thread"] = dnp3_thread  # Armazena a referência da thread
         dnp3_thread.start()
-    '''
+    
     
 # ========== Tratamento de encerramento com Ctrl+C ==========
 
 def signal_handler(sig, frame):
-    print("\n⛔ Encerrando execução por Ctrl+C...")
+    logger.warning("\n⛔ Encerrando execução por Ctrl+C...")
     stop_event.set()
 
     for name, thread in active_threads.items():
-        print(f"🔁 Finalizando thread: {name} ...")
+        logger.warning(f"🔁 Finalizando thread: {name} ...")
         if thread.is_alive():
             thread.join(timeout=5)
 

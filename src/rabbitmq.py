@@ -8,7 +8,6 @@
 # #############################################################
 import pika
 
-
 from dotenv import load_dotenv
 import os
 from logger import *
@@ -23,6 +22,14 @@ RABBIT_PASS=os.getenv("RABBIT_PASS")
 RABBIT_CAMINHO=os.getenv("RABBIT_CAMINHO")
 RABBIT_TOPICO=os.getenv("RABBIT_TOPICO")
 RABBIT_CHAVE=os.getenv("RABBIT_CHAVE")
+
+RABBIT_HOST_2=os.getenv("RABBIT_HOST_2")
+RABBIT_PORT_2=os.getenv("RABBIT_PORT_2")
+RABBIT_USER_2=os.getenv("RABBIT_USER_2")
+RABBIT_PASS_2=os.getenv("RABBIT_PASS_2")
+RABBIT_CAMINHO_2=os.getenv("RABBIT_CAMINHO_2")
+RABBIT_TOPICO_2=os.getenv("RABBIT_TOPICO_2")
+RABBIT_CHAVE_2=os.getenv("RABBIT_CHAVE_2")
 
 
 def check_rabbitmq_connection():
@@ -61,9 +68,7 @@ def check_rabbitmq_connection():
         
         return False
 
-
-
-def send_rabbitmq(payload=str):
+def send_rabbitmq(payload=str, type_data=str):
 
     """
     Envia uma mensagem ao RabbitMQ.
@@ -82,20 +87,37 @@ def send_rabbitmq(payload=str):
         print("Nenhum conteúdo para enviar ao RabbitMQ!")
         return False    
     try:
-        credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASS)
-        # Configurando os parâmetros de conexão
-        connection_params = pika.ConnectionParameters(
-            host=RABBIT_HOST, port=RABBIT_PORT, credentials=credentials)
-        connection = pika.BlockingConnection(connection_params)
-        channel = connection.channel()
-        channel.queue_declare(queue=RABBIT_TOPICO, durable=True)
+        if type_data == "healthcheck":    
+            credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASS)
+            # Configurando os parâmetros de conexão
+            connection_params = pika.ConnectionParameters(
+                host=RABBIT_HOST, port=RABBIT_PORT, credentials=credentials)
+            connection = pika.BlockingConnection(connection_params)
+            channel = connection.channel()
+            channel.queue_declare(queue=RABBIT_TOPICO, durable=True)
 
-        channel.basic_publish(
-            exchange=RABBIT_CAMINHO, routing_key=RABBIT_CHAVE, body=payload)
+            channel.basic_publish(
+                exchange=RABBIT_CAMINHO, routing_key=RABBIT_CHAVE, body=payload)
 
-        connection.close()
-        logger.info(f"Payload enviado com sucesso para fila '{RABBIT_TOPICO}'.")
-        return True
+            connection.close()
+            logger.info(f"Payload enviado com sucesso para fila '{RABBIT_TOPICO}'.")
+            return True
+        
+        elif type_data == "values":
+            credentials = pika.PlainCredentials(RABBIT_USER_2, RABBIT_PASS_2)
+            # Configurando os parâmetros de conexão
+            connection_params = pika.ConnectionParameters(
+                host=RABBIT_HOST_2, port=RABBIT_PORT_2, credentials=credentials)
+            connection = pika.BlockingConnection(connection_params)
+            channel = connection.channel()
+            channel.queue_declare(queue=RABBIT_TOPICO_2, durable=True)
+
+            channel.basic_publish(
+                exchange=RABBIT_CAMINHO_2, routing_key=RABBIT_CHAVE_2, body=payload)
+
+            connection.close()
+            logger.info(f"Payload enviado com sucesso para fila '{RABBIT_TOPICO_2}'.")
+            return True
 
     except pika.exceptions.AMQPConnectionError as e:
         print(f"Erro ao enviar dados para ao RabbitMQ: {e}")

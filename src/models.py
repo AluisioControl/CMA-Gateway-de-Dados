@@ -13,12 +13,22 @@ from sqlalchemy import create_engine, Column, Integer, String, event, Boolean, F
 from sqlalchemy.orm import sessionmaker, declarative_base
 from dotenv import load_dotenv
 import os
+from sqlalchemy.pool import QueuePool
 
 # Carregando as variáveis de ambiente do arquivo .env
 load_dotenv()
 
 # Configuração do banco de dados
 DATABASE_URL = os.getenv("DATABASE_URL")
+
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False},
+    poolclass=QueuePool,
+    pool_size=20,        # padrão é 5
+    max_overflow=30,     # padrão é 10
+    pool_timeout=30      # segundos para esperar antes de dar timeout
+)
 
 # Configuração do SQLite e SQLAlchemy
 database = Database(DATABASE_URL)
