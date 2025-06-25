@@ -44,6 +44,14 @@ service_status = {"is_running": False}
 # Variável global para controle das threads
 active_threads = {}
 
+# Mapa de status das threads: "executando" ou "ocioso"
+thread_status = {
+    "modbus_thread": "ocioso",
+    "dnp3_thread": "ocioso",
+    "health_checker": "ocioso",
+    "process_scada": "ocioso"
+}
+
 
 
 def get_network_info():
@@ -92,6 +100,7 @@ def thr_get_system_info():
     a cada 15 segundos.
     """
     logger.info("Iniciando monitoramento de informações do sistema...")
+    thread_status["health_checker"] = "executando"
     while True:
         # Memória RAM
         ram = psutil.virtual_memory()
@@ -168,6 +177,7 @@ def thr_get_system_info():
         }
         payload = json.dumps(payload, indent=4, ensure_ascii=False)
         send_data_to_mqtt(payload, "healthcheck")
+        thread_status["health_checker"] = "ocioso"
         time.sleep(int(HEALTH_SYSTEM_CHECK_INTERVAL))
 
 
@@ -467,93 +477,76 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
 
 def process_persistence():
     """
-    Função que processa a persistência de dados no banco de dados.
-    Percorre a tabela de persistência e envia os dados para o RabbitMQ.
-    Se o envio for bem-sucedido, remove o item da tabela de persistência.
+    Verifica todas as mensagens com sended=False na tabela de persistência
+    e envia uma a uma para o RabbitMQ. Após envio bem-sucedido, remove o registro.
     """
     session = SessionLocal()
     try:
         query = select(persistence).where(persistence.sended == False)
         items = session.execute(query).scalars().all()
-        
+
+        total = len(items)
+        logger.info(f"\U0001f501 Iniciando reenvio de {total} mensagens pendentes da persistência.")
+
         for item in items:
             content_data = item.content_data
-            success = send_data_to_mqtt(content_data, "values")
-            if success:
-                # Remove o item da tabela de persistência
+            item_id = item.id  # Salva o ID antes de qualquer exclusão
+
+            send_success = send_rabbitmq(content_data, "values")
+
+            if send_success:
                 delete_query = persistence.__table__.delete().where(
-                    persistence.__table__.c.id == item.id
+                    persistence.__table__.c.id == item_id
                 )
                 session.execute(delete_query)
                 session.commit()
-                logger.info(f"Item {item.id} removido da tabela de persistência após envio bem-sucedido.")
+                logger.info(f"✅ Item ID={item_id} removido da persistência após envio bem-sucedido.")
+            else:
+                logger.warning(f"❌ Falha ao reenviar item ID={item_id}. Mantido na fila.")
 
     except SQLAlchemyError as e:
-        session.rollback()  # Desfaz transações em caso de erro
-        logger.error(f"Erro no banco de dados: {str(e)}")
-        return {"error": f"Erro no banco de dados: {str(e)}"}
+        session.rollback()
+        logger.error(f"⚠️ Erro no banco de dados ao processar persistência: {str(e)}")
 
     finally:
         session.close()
 
 
-def send_data_to_mqtt(content_data, data_type=str):
 
+def send_data_to_mqtt(content_data, data_type="values"):
     """
-    Função que armazena e envia um JSON para o Rabbi,tMQ.
+    Função que envia dados para o RabbitMQ e salva na fila se falhar.
 
-    Parameters
-    ----------
-    content_data : str
-        Conteúdo do JSON a ser armazenado e enviado ao RabbitMQ.
-
-    Returns
-    -------
-    dict
-        Dicionário com chave "error" caso haja erro. Caso contrário, 
-        retorna None.
-
-    Notes
-    -----
-    1. Armazena o JSON no campo content_data e False no campo sended
-    2. Percorre a tabela e envia o JSON onde sended = False.
-       Se o envio for sucesso altera o campo sended = True
+    Returns:
+        dict: {"status": "sent"} ou {"status": "queued"} ou {"status": "error"}
     """
-    if  content_data == "":
-        logger.warning("Nenhum conteúdo para enviar ao MQTT!")
-        return
+    if not isinstance(content_data, str) or not content_data.strip():
+        logger.warning("Payload vazio ou inválido. Nada foi enviado.")
+        return {"status": "ignored"}
 
     session = SessionLocal()
     try:
-        send_success = False
-
-        # 2 - Percorre a tabela e envia o JSON onde sended = False.
-        # Se o envio for sucesso altera o campo sended = True
-        # query = select(persistence).where(persistence.sended == False)
-        # items = session.execute(query).scalars().all()
-
-        # for item in items:
-        logger.info("Enviando conteúdo para mqtt...")
-
+        logger.info("Tentando enviar conteúdo ao RabbitMQ...")
         send_success = send_rabbitmq(content_data, data_type)
+
         if not send_success:
-
-            # 1 - Armazena o JSON no campo content_data
-            # e atribui False no campo sended
-            query = persistence.__table__.insert().values(
-                content_data=content_data,
-                sended=False
+            # Armazena na fila para reenvio posterior
+            session.execute(
+                persistence.__table__.insert().values(
+                    content_data=content_data,
+                    sended=False
+                )
             )
-            result = session.execute(query)
-            session.commit()  # Confirma a transação para inserir no banco
-            msg = "Falha ao enviar mensagem para o RabbitMQ. A mensagem foi guardada em fila e será enviada posteriormente!"
-            logger.error(msg)
+            session.commit()
+            logger.warning("Falha no envio. Payload salvo na tabela de persistência.")
+            return {"status": "queued"}
 
+        return {"status": "sent"}
 
     except SQLAlchemyError as e:
-        session.rollback()  # Desfaz transações em caso de erro
-        logger.error(f"Erro no banco de dados: {str(e)}")
-        return {"error": f"Erro no banco de dados: {str(e)}"}
+        session.rollback()
+        logger.error(f"Erro no banco de dados ao persistir payload: {str(e)}")
+        return {"status": "error", "detail": str(e)}
 
     finally:
         session.close()
@@ -694,17 +687,6 @@ def execute_sensors_modbus(xid_modbus, interval, stop_event):
             logger.info(f"\nEnviando para MQTT dados xid_sensor mdbus:{xid_modbus} a cada {interval/60} minuto(s)")
             list_xid_sensor_modbus = get_xid_sensor_from_eqp_modbus(xid_modbus)
 
-            # with open("teste.txt", "a") as log_file:
-            #     log_file.write(f"\n\n----------\n\n")
-            #     # total da lista
-            #     log_file.write(f"Total de sensores no modbus ({xid_modbus}): {len(list_xid_sensor_modbus)}\n")
-            
-            # agora = datetime.now()
-            # logger.info(agora.strftime("%Y-%m-%d %H:%M:%S"))  # Exemplo: 2025-03-16 14:32:15
-            
-            # with open("teste.txt", "a") as log_file:
-            #     log_file.write(f"Enviando dados do sensor modbus: {xid_modbus} em {agora.strftime('%Y-%m-%d %H:%M:%S')}\n")
-
             # Limita a 10 processos simultâneos
             with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
                 def process_sensor(xid_sensor_modbus):
@@ -718,21 +700,7 @@ def execute_sensors_modbus(xid_modbus, interval, stop_event):
                 
                 # Aguarda todas as tarefas terminarem
                 concurrent.futures.wait(futures)
-            # Processa a persistência de dados
-            process_persistence()
             
-            # Log do tempo de execução e desempenho do envio dos sensores Modbus
-            #final = datetime.now()
-            #with open("teste.txt", "a") as log_file:
-                # # Dados do sensor modbus enviados com sucesso em
-                # log_file.write(f"Dados do sensor modbus: {xid_modbus} enviados com sucesso em {final.strftime('%Y-%m-%d %H:%M:%S')}\n")
-                # # Tempo decorrido entre início e fim do envio
-                # log_file.write(f"Tempo decorrido: {final - agora}\n\n")
-                # # Taxa de execução dos processos por segundo
-                # if (final - agora).total_seconds() > 0:
-                #     log_file.write(f"Processos executados por segundo (modbus: {xid_modbus}): {len(futures) / (final - agora).total_seconds()}\n")
-                # else:
-                #     log_file.write("Tempo decorrido muito curto para calcular processos por segundo.\n")
             logger.info(f"Dados do sensor modbus: {xid_modbus} enviados com sucesso!")
 
         else:
@@ -769,7 +737,7 @@ def execute_sensors_dnp3(xid_dnp3, interval, stop_event):
                 send_data_to_mqtt(payload, "values")
         else:
             logger.error(f"Comunicação com SCADA perdida ao enviar dados xid_sensor DNP3:{xid_dnp3}!")
-        time.sleep(1)
+        time.sleep(0.1)
         
 
 def thr_check_server_online(host: str, port: int, servername: str):
@@ -786,6 +754,7 @@ def thr_check_server_online(host: str, port: int, servername: str):
     global STATUS_AUTH_SCADA
     global STATUS_SCADA
     global service_status
+    thread_status["process_scada"] = "executando"
 
     while True:
         try:
@@ -819,6 +788,8 @@ def thr_check_server_online(host: str, port: int, servername: str):
         payload = json.dumps(payload, indent=4, ensure_ascii=False)
         send_data_to_mqtt(payload, "healthcheck")
         logger.info("Enviando payload status de conexão SACADA-LTS para RabbitMQ...")
+
+        thread_status["process_scada"] = "ocioso"
              
         time.sleep(int(STATUS_SERVER_CHECK_INTERVAL))
 
@@ -841,7 +812,8 @@ def thr_start_routines_sensor(datasource, protocol):
     """
 
     proccess_map = {}
-    
+    thread_status["modbus_thread"] = "executando"
+    thread_status["dnp3_thread"] = "executando"
     # Mapeia funções conforme o protocolo
     execute_sensors_func = execute_sensors_modbus if protocol == "modbus" else execute_sensors_dnp3
     logger.info(f"Iniciando as rotinas do sensor {protocol}...")
@@ -878,7 +850,47 @@ def thr_start_routines_sensor(datasource, protocol):
                 proccess_map[id_][1].set()  # Aciona o evento de parada
                 proccess_map[id_][0].join()  # Aguarda o término da thread
                 del proccess_map[id_]
+        # Atualiza o status da thread
+        thread_status["modbus_thread"] = "ocioso"
+        thread_status["dnp3_thread"] = "ocioso"
         time.sleep(0.1)
+
+
+def thr_process_persistence(interval=0.5):
+    """
+    Processa a fila de persistência apenas se todas as outras threads estiverem ociosas.
+    """
+    logger.info("🟢 Thread de persistência iniciada.")
+    print("🟢 Thread de persistência iniciada.")
+    while not stop_event.is_set():
+        try:
+            em_execucao = [name for name, status in thread_status.items() if status == "executando"]
+            if em_execucao:
+                logger.debug(f"⏸ Threads em execução: {em_execucao}. Aguardando...")
+                print(f"⏸ Threads em execução: {em_execucao}. Aguardando...")
+                time.sleep(interval)
+                continue
+
+            # Verifica se existem dados pendentes na tabela
+            session = SessionLocal()
+            result = session.execute(
+                select(persistence).where(persistence.sended == False)
+            ).fetchall()
+            session.close()
+
+            if result:
+                logger.info(f"🟡 {len(result)} mensagens pendentes. Processando persistência...")
+                print(f"🟡 {len(result)} mensagens pendentes. Processando persistência...")
+                process_persistence()
+            else:
+                logger.debug("📭 Nenhuma mensagem pendente. Nada a fazer.")
+                print("📭 Nenhuma mensagem pendente. Nada a fazer.")
+
+        except Exception as e:
+            logger.error(f"Erro na thread de persistência: {e}")
+
+        time.sleep(interval)
+
 
 
 # =======================================================================
@@ -887,6 +899,14 @@ def thr_start_routines_sensor(datasource, protocol):
 # =======================================================================
 def start_main_threads():
     """Inicia os processos para checar servidores.""" 
+
+
+    if "persistence_thread" not in active_threads:
+        persistence_thread = threading.Thread(target=thr_process_persistence, args=(0.1,),  # intervalo de 30 segundos (ajustável)
+            daemon=True
+        )
+        active_threads["persistence_thread"] = persistence_thread
+        persistence_thread.start()
     
     
     if "process_scada" not in active_threads:

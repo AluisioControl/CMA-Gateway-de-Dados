@@ -69,27 +69,25 @@ def check_rabbitmq_connection():
         return False
 
 def send_rabbitmq(payload=str, type_data=str):
-
     """
     Envia uma mensagem ao RabbitMQ.
 
-    Parameter
+    Parameters
     ----------
     payload : str
         Conteúdo da mensagem.
 
     Returns
     -------
-        bool: True se a mensagem foi enviada com sucesso, False caso contrário.
+    bool: True se a mensagem foi enviada com sucesso, False caso contrário.
     """
-    if payload == None:
+    if not payload:
         logger.warning("Tentativa de envio de payload vazio ao RabbitMQ.")
-        print("Nenhum conteúdo para enviar ao RabbitMQ!")
-        return False    
+        return False
+
     try:
-        if type_data == "healthcheck":    
+        if type_data == "healthcheck":
             credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASS)
-            # Configurando os parâmetros de conexão
             connection_params = pika.ConnectionParameters(
                 host=RABBIT_HOST, port=RABBIT_PORT, credentials=credentials)
             connection = pika.BlockingConnection(connection_params)
@@ -100,12 +98,11 @@ def send_rabbitmq(payload=str, type_data=str):
                 exchange=RABBIT_CAMINHO, routing_key=RABBIT_CHAVE, body=payload)
 
             connection.close()
-            logger.info(f"Payload enviado com sucesso para fila '{RABBIT_TOPICO}'.")
+            logger.info(f"[healthcheck] Payload enviado com sucesso para fila '{RABBIT_TOPICO}'.")
             return True
-        
+
         elif type_data == "values":
             credentials = pika.PlainCredentials(RABBIT_USER_2, RABBIT_PASS_2)
-            # Configurando os parâmetros de conexão
             connection_params = pika.ConnectionParameters(
                 host=RABBIT_HOST_2, port=RABBIT_PORT_2, credentials=credentials)
             connection = pika.BlockingConnection(connection_params)
@@ -116,10 +113,17 @@ def send_rabbitmq(payload=str, type_data=str):
                 exchange=RABBIT_CAMINHO_2, routing_key=RABBIT_CHAVE_2, body=payload)
 
             connection.close()
-            logger.info(f"Payload enviado com sucesso para fila '{RABBIT_TOPICO_2}'.")
+            logger.info(f"[values] Payload enviado com sucesso para fila '{RABBIT_TOPICO_2}'.")
             return True
 
+        else:
+            logger.warning(f"type_data desconhecido: {type_data}. Nenhum envio foi feito.")
+            return False
+
     except pika.exceptions.AMQPConnectionError as e:
-        print(f"Erro ao enviar dados para ao RabbitMQ: {e}")
-        logger.error(f"Erro ao enviar dados para ao RabbitMQ: {e}")
+        logger.error(f"Erro de conexão ao enviar dados para RabbitMQ ({type_data}): {e}")
+        return False
+
+    except Exception as e:
+        logger.error(f"Erro inesperado ao enviar dados ao RabbitMQ: {e}")
         return False
