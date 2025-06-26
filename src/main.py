@@ -429,48 +429,12 @@ def process_json_datapoints(xid_sensor_param: str, protocol: str):
                         return result
                 except:
                         logger.error(f"Erro ao gerar JSON com dados do xid_sensor {xid_sensor}")
-                        payload = {
-                        "xid_error": {
-                            "xid_sensor": "Json Error value"
-                        }
-                    }
-
-                result = json.dumps(payload, indent=4, ensure_ascii=False)
-                return result
                 
             elif extracted_value == None:
                     logger.warning(f"Valor de xid_sensor: {xid_sensor} = None. Um report será enviado.")
-                    payload = {
-                        "xid_error": {
-                            "xid_sensor_none": xid_sensor
-                        }
-                    }
-
-                    result = json.dumps(payload, indent=4, ensure_ascii=False)
-                    return result
-            else:
-                logger.error(f"Erro ao obter dados do xid_sensor {xid_sensor} no Sacada-LTS!")
-                payload = {
-                        "xid_error": {
-                            "xid_sensor": xid_sensor,
-                            "descricao": "Json Error extratecd value"
-                        }
-                    }
-
-                result = json.dumps(payload, indent=4, ensure_ascii=False)
-                return result
 
     except Exception as e:
         logger.error(f"Erro ao gerar um Payload (JSON) de múltiplas Tabelas do banco de dados: {e}")
-        payload = {
-                        "xid_erro": {
-                            "xid_sensor": xid_sensor,
-                            "descricao": "Json Error no data"
-                        }
-                    }
-
-        result = json.dumps(payload, indent=4, ensure_ascii=False)
-        return result
 
     finally:
         session.close()
@@ -694,7 +658,8 @@ def execute_sensors_modbus(xid_modbus, interval, stop_event):
                     logger.info("Enviando para mqtt dados do sensor modbus: ", xid_sensor_modbus)
                     payload = process_json_datapoints(xid_sensor_modbus, "MODBUS")
                     logger.info("PAYLOAD A SER ENVIADO PARA MQTT=", payload)
-                    send_data_to_mqtt(payload, "values")
+                    if payload != 0:
+                        send_data_to_mqtt(payload, "values")
                 
                 # Submete todas as tarefas para execução paralela
                 futures = [executor.submit(process_sensor, xid_sensor) for xid_sensor in list_xid_sensor_modbus]
@@ -735,7 +700,8 @@ def execute_sensors_dnp3(xid_dnp3, interval, stop_event):
             for xid_sensor_dnp3 in list_xid_sensor_dnp3:
                 logger.info("Enviando para mqtt dados do sensor dnp3: ", xid_sensor_dnp3)
                 payload = process_json_datapoints(xid_sensor_dnp3, "DNP3")
-                send_data_to_mqtt(payload, "values")
+                if payload != 0:
+                        send_data_to_mqtt(payload, "values")
         else:
             logger.error(f"Comunicação com SCADA perdida ao enviar dados xid_sensor DNP3:{xid_dnp3}!")
         time.sleep(0.1)
