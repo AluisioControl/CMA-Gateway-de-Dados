@@ -29,6 +29,7 @@ from logger import *
 from dotenv import load_dotenv
 import concurrent.futures
 
+
 # Carregando as variáveis de ambiente do arquivo .env
 load_dotenv()
 
@@ -176,7 +177,7 @@ def thr_get_system_info():
             }
         }
         payload = json.dumps(payload, indent=4, ensure_ascii=False)
-        send_data_to_mqtt(payload, "healthcheck")
+        send_rabbitmq(payload, "healthcheck")
         thread_status["health_checker"] = "ocioso"
         time.sleep(int(HEALTH_SYSTEM_CHECK_INTERVAL))
 
@@ -500,13 +501,13 @@ def process_persistence():
                 )
                 session.execute(delete_query)
                 session.commit()
-                logger.info(f"✅ Item ID={item_id} removido da persistência após envio bem-sucedido.")
+                logger.info(f"Item ID={item_id} removido da persistência após envio bem-sucedido.")
             else:
-                logger.warning(f"❌ Falha ao reenviar item ID={item_id}. Mantido na fila.")
+                logger.warning(f"Falha ao reenviar item ID={item_id}. Mantido na fila.")
 
     except SQLAlchemyError as e:
         session.rollback()
-        logger.error(f"⚠️ Erro no banco de dados ao processar persistência: {str(e)}")
+        logger.error(f"Erro no banco de dados ao processar persistência: {str(e)}")
 
     finally:
         session.close()
@@ -786,7 +787,7 @@ def thr_check_server_online(host: str, port: int, servername: str):
         }
 
         payload = json.dumps(payload, indent=4, ensure_ascii=False)
-        send_data_to_mqtt(payload, "healthcheck")
+        send_rabbitmq(payload, "healthcheck")
         logger.info("Enviando payload status de conexão SACADA-LTS para RabbitMQ...")
 
         thread_status["process_scada"] = "ocioso"
@@ -857,17 +858,15 @@ def thr_start_routines_sensor(datasource, protocol):
 
 
 def thr_process_persistence(interval=0.5):
-    """
-    Processa a fila de persistência apenas se todas as outras threads estiverem ociosas.
-    """
-    logger.info("🟢 Thread de persistência iniciada.")
-    print("🟢 Thread de persistência iniciada.")
+    
+    logger.info("Thread de persistência iniciada.")
+    #print("Thread de persistência iniciada.")
     while not stop_event.is_set():
         try:
             em_execucao = [name for name, status in thread_status.items() if status == "executando"]
             if em_execucao:
                 logger.debug(f"⏸ Threads em execução: {em_execucao}. Aguardando...")
-                print(f"⏸ Threads em execução: {em_execucao}. Aguardando...")
+                #print(f"⏸ Threads em execução: {em_execucao}. Aguardando...")
                 time.sleep(interval)
                 continue
 
@@ -879,12 +878,12 @@ def thr_process_persistence(interval=0.5):
             session.close()
 
             if result:
-                logger.info(f"🟡 {len(result)} mensagens pendentes. Processando persistência...")
-                print(f"🟡 {len(result)} mensagens pendentes. Processando persistência...")
+                logger.info(f"{len(result)} mensagens pendentes. Processando persistência...")
+                #print(f"{len(result)} mensagens pendentes. Processando persistência...")
                 process_persistence()
             else:
-                logger.debug("📭 Nenhuma mensagem pendente. Nada a fazer.")
-                print("📭 Nenhuma mensagem pendente. Nada a fazer.")
+                logger.debug("Nenhuma mensagem pendente. Nada a fazer.")
+                #print("Nenhuma mensagem pendente. Nada a fazer.")
 
         except Exception as e:
             logger.error(f"Erro na thread de persistência: {e}")
@@ -898,8 +897,6 @@ def thr_process_persistence(interval=0.5):
 # de envio de dados para MQTT e verificação de conexão com servidores
 # =======================================================================
 def start_main_threads():
-    """Inicia os processos para checar servidores.""" 
-
 
     if "persistence_thread" not in active_threads:
         persistence_thread = threading.Thread(target=thr_process_persistence, args=(0.1,),  # intervalo de 30 segundos (ajustável)
@@ -915,13 +912,10 @@ def start_main_threads():
         process_scada.start()
     
     
-    """Inicia os processos para monitorar o sistema (health check)"""
     if "health_checker" not in active_threads:
         health_checker = threading.Thread(target=thr_get_system_info, args=(), daemon = True)
         active_threads["health_checker"] = health_checker  # Armazena a referência da thread
         health_checker.start()
-    
-    """Inicia os processos de comunicação com Scada-LTS e envio de dados para MQTT"""
     
     if "modbus_thread" not in active_threads:
         modbus_thread = threading.Thread(target=thr_start_routines_sensor, args=(datasource_modbus_ip,"modbus"), daemon=True)
@@ -937,15 +931,15 @@ def start_main_threads():
 # ========== Tratamento de encerramento com Ctrl+C ==========
 
 def signal_handler(sig, frame):
-    logger.warning("\n⛔ Encerrando execução por Ctrl+C...")
+    logger.warning("\nEncerrando execução por Ctrl+C...")
     stop_event.set()
 
     for name, thread in active_threads.items():
-        logger.warning(f"🔁 Finalizando thread: {name} ...")
+        logger.warning(f"Finalizando thread: {name} ...")
         if thread.is_alive():
             thread.join(timeout=5)
 
-    print("✅ Todas as threads encerradas. Encerrando aplicação.")
+    print("Todas as threads encerradas. Encerrando aplicação.")
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
@@ -954,5 +948,5 @@ signal.signal(signal.SIGINT, signal_handler)
 if __name__ == "__main__":
     start_main_threads()
     logger.info("CMA Gateway de Dados iniciado com sucesso.")
-    print("✅ Aplicação iniciada. Pressione Ctrl+C para encerrar.\n")
+    print("Aplicação iniciada. Pressione Ctrl+C para encerrar.\n")
     signal.pause()  # Aguarda interrupção (Ctrl+C)
