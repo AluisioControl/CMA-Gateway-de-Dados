@@ -32,7 +32,7 @@ engine = create_engine(
 
 # Configuração do SQLite e SQLAlchemy
 database = Database(DATABASE_URL)
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+#engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 Base = declarative_base()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
